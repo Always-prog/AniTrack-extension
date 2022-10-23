@@ -4,6 +4,7 @@ Here's is logic for getting data from watching video.
 It selecting data from iframe's D: (all_frames options)
 
 */
+// TODO: Refactor that all
 
 const getDuration = () => {
     var video = document.getElementsByTagName('video')[0];
