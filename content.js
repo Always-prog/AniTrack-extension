@@ -5,7 +5,7 @@ For example getting site url, current selected episode e.t.c.
 Sending that data to popup .
 
 */
-
+// TODO: Refactor that all
 
 
 const getEpisodeOrder = () => {
