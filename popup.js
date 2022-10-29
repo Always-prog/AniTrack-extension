@@ -16,7 +16,8 @@ const endpoints = {
         get: baseUrl + '/title/?',
         all: baseUrl + '/titles/',
         create: baseUrl + '/title/create/',
-        delete: baseUrl + '/title/'
+        delete: baseUrl + '/title/',
+        update: baseUrl + '/title/'
     },
     search: {
         season: baseUrl + '/like/season/?',
@@ -30,7 +31,8 @@ const endpoints = {
         create: baseUrl + '/season/create/',
         bysite: baseUrl + '/season/bysite/?',
         get: baseUrl + '/season/?',
-        delete: baseUrl + '/season/'
+        delete: baseUrl + '/season/',
+        update: baseUrl + '/season/'
     },
     episodes: {
         bysite: baseUrl + '/episodes/bysite/?',
@@ -118,6 +120,50 @@ const createTitleEvent =() => {
     })
 }
 
+const recordSeasonSummary = () => {
+    var updateFields = {
+        season_name: document.getElementById('summary_season_name').value,
+        updated_fields: {
+            summary: document.getElementById('summary_about_season').value
+        }
+    }
+    fetch(endpoints.season.update, {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        method: 'PUT',
+        body: JSON.stringify(updateFields)
+    }).then(response => {
+        if (response.status === 200){
+            document.getElementById('summary_season_record_button').innerHTML = 'Записано.'
+        } else {
+            document.getElementById('summary_season_record_button').innerHTML = 'Что-то пошло не так. Подробности в консоли'
+            console.dir(response)
+        }
+    })
+}
+const recordTitleSummary = () => {
+    var updateFields = {
+        title_name: document.getElementById('summary_title_name').value,
+        updated_fields: {
+            summary: document.getElementById('summary_about_title').value
+        }
+    }
+    fetch(endpoints.title.update, {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        method: 'PUT',
+        body: JSON.stringify(updateFields)
+    }).then(response => {
+        if (response.status === 200){
+            document.getElementById('summary_title_record_button').innerHTML = 'Записано.'
+        } else {
+            document.getElementById('summary_title_record_button').innerHTML = 'Что-то пошло не так. Подробности в консоли'
+            console.dir(response)
+        }
+    })
+}
 
 
 const setPlayerData = info => {
@@ -178,23 +224,31 @@ const setSiteData = info => {
     ).then(titles => {
         var registrationTitles = document.getElementById('reg_title_name')
         var deletingTitles = document.getElementById('delete_title_name')
+        var summaryTitles = document.getElementById('summary_title_name')
         titles.forEach(title => {
-            let titleNameOption = document.createElement('option')
-            titleNameOption.value = title.titleName;
-            titleNameOption.innerHTML = title.titleName;
+            let titleNameOptionRegister = document.createElement('option')
+            titleNameOptionRegister.value = title.titleName;
+            titleNameOptionRegister.innerHTML = title.titleName;
 
-            let titleNameOption2 = document.createElement('option')
-            titleNameOption2.value = title.titleName;
-            titleNameOption2.innerHTML = title.titleName;
+            let titleNameOptionDelete = document.createElement('option')
+            titleNameOptionDelete.value = title.titleName;
+            titleNameOptionDelete.innerHTML = title.titleName;
 
-            registrationTitles.appendChild(titleNameOption)
-            deletingTitles.appendChild(titleNameOption2)
+            let titleNameOptionSummary = document.createElement('option')
+            titleNameOptionSummary.value = title.titleName;
+            titleNameOptionSummary.innerHTML = title.titleName;
+
+            registrationTitles.appendChild(titleNameOptionRegister)
+            deletingTitles.appendChild(titleNameOptionDelete)
+            summaryTitles.appendChild(titleNameOptionSummary)
         })
     }
     )
     var deleteTitleSection = document.getElementById('delete_title_name')
     var deleteSeasonSection = document.getElementById('delete_season_name')
     var deleteEpisodeSection = document.getElementById('delete_episode_order')
+    var summaryTitleSection = document.getElementById('summary_title_name')
+    var summarySeasonSection = document.getElementById('summary_season_name')
     var deleteButton = document.getElementById('delete_button');
     deleteTitleSection.addEventListener('change', (e) => {
         fetch(endpoints.title.get + new URLSearchParams({
@@ -283,6 +337,31 @@ const setSiteData = info => {
             })
         }
     })
+    summaryTitleSection.addEventListener('change', (e) => {
+        fetch(endpoints.title.get + new URLSearchParams({
+            title_name: summaryTitleSection.value
+        })
+        ).then(response => response.json()
+        ).then(title => {
+            title.seasons.forEach(season => {
+                let seasonNameOption = document.createElement('option')
+                seasonNameOption.value = season.seasonName;
+                seasonNameOption.innerHTML = season.seasonName;
+                summarySeasonSection.appendChild(seasonNameOption)
+            })
+            document.getElementById('summary_about_title').value = title.summary;
+            summarySeasonSection.removeAttribute('disabled');
+        })
+    })
+    summarySeasonSection.addEventListener('change', (e) => {
+        fetch(endpoints.season.get + new URLSearchParams({
+            season_name: summarySeasonSection.value
+        })
+        ).then(response => response.json()
+        ).then(season => {
+            document.getElementById('summary_about_season').value = season.summary || '';
+        })
+    })
     document.getElementById('before_watch').value = localStorage.getItem('before_watch_no_saved_content');
     document.getElementById('after_watch').value = localStorage.getItem('after_watch_no_saved_content');
     document.getElementById('reg_season_name').value = info.seasonName;
@@ -341,6 +420,12 @@ document.getElementById('before_watch').addEventListener('change', function(e) {
     
 })
 document.getElementById('after_watch').addEventListener('change', function(e) {
-    localStorage.setItem('after_watch_no_saved_content', e.target.value)
-    
+    localStorage.setItem('after_watch_no_saved_content', e.target.value)  
+})
+
+document.getElementById('summary_title_record_button').addEventListener('click', function(e){
+    recordTitleSummary()
+})
+document.getElementById('summary_season_record_button').addEventListener('click', function(e){
+    recordSeasonSummary()
 })
