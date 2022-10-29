@@ -6,6 +6,15 @@ It selecting data from iframe's D: (all_frames options)
 */
 // TODO: Refactor that all
 
+
+window.addEventListener('load', () => {
+    chrome.runtime.sendMessage({ from: 'player', subject: 'setNextEpisodeEvent'}, tab => {
+
+     });
+
+}, false)
+
+
 const getDuration = () => {
     var video = document.getElementsByTagName('video')[0];
     return video.duration;

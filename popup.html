@@ -78,6 +78,9 @@
   opacity: 1;
   transition: all 0.35s;
 }
+.inline {
+  display: inline;
+}
 
     </style>
     <div style="width: 500px; height: 600px">
@@ -88,12 +91,6 @@
             <input type="radio" name="css-tabs" id="tab-1" checked class="tab-switch">
             <label for="tab-1" class="tab-label">Серия</label>
             <div class="tab-content">
-              
-                  <style>
-                    .inline {
-                      display: inline;
-                    }
-                  </style>
                   <div style="width: 500px; height: 600px">
                     <p>
                       <p>
@@ -129,7 +126,7 @@
                     </p>
                     
                     <p>
-                      <div>Episodes wathced count: <span id="last_viewed_episode">-</span></div><br/>
+                      <div>просмотренные серии: <span id="watched_episodes_list" style="cursor: pointer;"></span></div><br/>
                       Перевод: <input id="translate_type"><br/>
                       Сайт: <input id="site"><br/>
                       Дата: <input type="date" id="watch_date" placeholder="dd-mm-yyyy">
@@ -144,9 +141,8 @@
                       Серия уже записана.
                     </h2>
                     <button id="push_button" style="position: relative;left: 50%;transform: translate(-50%, -50%);">Отправить запись</button>
-                    <script src="./popup.js"></script>
+                    
                   </div>
-
             </div>
           </div>
           <div class="tab">
@@ -154,7 +150,36 @@
             <label for="tab-2" class="tab-label">Сезон</label>
             <div class="tab-content">
               <div style="width: 500px; height: 600px">
-                TODO: Регистрация сезона
+                <div style="width: 500px; height: 600px">
+                  <p>
+                    <p>
+                    <label for="reg_season_name" class="inline">Сезон</label>
+                    <input type="text" id="reg_season_name" style="width: 100%;">
+                    </p>
+                    <p>
+                    <label for="reg_title_name" class="inline">Тайтл</label>
+                    <select id="reg_title_name" style="width: 100%">
+                      <option value="">Выберите тайтл...</option>
+                    </select>
+                    <span style="font-size: x-small;">Тайтла нет в списке? Зарегистрируй.</span>
+                    </p>
+                    <p>
+                      <label for="reg_episodes_count" class="inline">Кол-во серий</label><br/>
+                      <input type="number" id="reg_episodes_count" class="inline" min="1" max="9999" maxlength="4" size="4">
+                    </p>
+                    <p>
+                      <label for="reg_watch_motivation_season" style="display: block; text-align: center;">Мотивация просмотра</label><br/>
+                      <textarea id="reg_watch_motivation_season" style="width: 100%;"></textarea><br/>
+                    </p>
+                    <p style="display: block; text-align: center; font-size: small; color: rgba(64, 64, 64, 0.5)">По возможности добавь сразу все сезоны</p>
+                    <br/>
+                  </p>
+              
+                  <button id="create_season_button" style="position: relative;left: 50%;transform: translate(-50%, -50%);">Создать Сезон</button>
+                  <h2 id="seems_season_already_exists" style="display: none; color: rgb(255, 157, 0); position: relative; text-align: center;">
+                    Похоже, сезон уже записан.
+                  </h2>
+                </div>
               </div>
             </div>
           </div>
@@ -163,12 +188,55 @@
             <label for="tab-3" class="tab-label">Тайтл</label>
             <div class="tab-content">
               <div style="width: 500px; height: 600px">
-                TODO: Регистрация тайтла
+                <p>
+                  <label for="reg_new_title_name" class="inline">Тайтл</label>
+                  <input type="text" id="reg_new_title_name"  style="width: 100%;">
+                </p>
+                <p>
+                  <label for="reg_watch_motivation_title" style="display: block; text-align: center;">Мотивация просмотра</label><br/>
+                  <textarea id="reg_watch_motivation_title" style="width: 100%;"></textarea><br/>
+                </p>
+                <br/>
+                <button id="create_title_button" style="position: relative;left: 50%;transform: translate(-50%, -50%);">Создать Тайтл</button> 
+              </div>
+            </div>
+          </div>
+          <div class="tab">
+            <input type="radio" name="css-tabs" id="tab-4" class="tab-switch">
+            <label for="tab-4" class="tab-label" style="background:rgb(234, 6, 6); border-right:rgb(234, 6, 30)">Удалить</label>
+            <div class="tab-content">
+              <div style="width: 500px; height: 600px">
+                <p>
+                <label for="delete_title_name" class="inline">Тайтл</label>
+                <select id="delete_title_name" style="width: 100%">
+                  <option value="">Выберите тайтл...</option>
+                </select>
+                </p>
+                <p>
+                  <label for="delete_season_name" class="inline">Сезон</label>
+                  <select id="delete_season_name" style="width: 100%" disabled>
+                    <option value="">Выберите сезон...</option>
+                  </select>
+                </p>
+                <p>
+                  <label for="delete_episode_order" class="inline">Запись</label>
+                  <select id="delete_episode_order" style="width: 100%" disabled>
+                    <option value="">Выберите серию...</option>
+                  </select>
+                </p>
+                <p>
+                <div style="text-align: center; padding: 1rem; font-size: small; color: rgba(64, 64, 64, 0.5)">
+                  Выбрав только тайтл - удалишь весь тайтл.<br/>
+                  Выбрав тайтл и сезон тайла - удалишь весь сезон<br/>
+                  Выбрав тайтл, сезон и серию - удалишь серию<br/>
+                </div>
+                </p>
+                <button id="delete_button" style="position: relative;left: 50%;transform: translate(-50%, -50%);">Удалить</button> 
               </div>
             </div>
           </div>
         </div>
-        <p>Example line outside of tab box</p>
+        <script src="./popup.js"></script>
       </div>
 
 
