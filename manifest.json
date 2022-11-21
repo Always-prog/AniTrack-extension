@@ -3,7 +3,6 @@
     "description": "Just TimeEater",
     "version": "1.0",
     "permissions":[
-        "background",
         "tabs",
         "activeTab",
         "scripting"

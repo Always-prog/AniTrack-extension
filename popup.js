@@ -1,12 +1,21 @@
 // TODO: Refactor that all
 
-var today = new Date();
-var dd = String(today.getDate()).padStart(2, '0');
-var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-var yyyy = today.getFullYear();
+var now = new Date();
+var utcString = now.toISOString().substring(0,19);
+var year = now.getFullYear();
+var month = now.getMonth() + 1;
+var day = now.getDate();
+var hour = now.getHours();
+var minute = now.getMinutes();
+var second = now.getSeconds();
+var localDatetime = year + "-" +
+                    (month < 10 ? "0" + month.toString() : month) + "-" +
+                    (day < 10 ? "0" + day.toString() : day) + "T" +
+                    (hour < 10 ? "0" + hour.toString() : hour) + ":" +
+                    (minute < 10 ? "0" + minute.toString() : minute) +
+                    utcString.substring(16,19);
 
-today = yyyy + '-' + mm + '-' + dd;
-document.getElementById("watch_date").value = today;
+document.getElementById("watch_datetime").value = localDatetime;
 
 
 
@@ -47,14 +56,13 @@ const endpoints = {
 
 const createEpisodeEvent = () => {
     var episode = {
-        season_name: document.getElementById('season_name').value,
-        watch_date: document.getElementById('watch_date').value,
+        season_id: localStorage.getItem('currentSeasonId'),
+        watch_datetime: document.getElementById('watch_datetime').value,
         episode_order: Number(document.getElementById('episode_order').value),
-        episode_time: Number(document.getElementById('episode_time').value),
+        duration: Number(document.getElementById('duration').value),
         watched_time: Number(document.getElementById('watched_time').value),
         translate_type: document.getElementById('translate_type').value,
-        before_watch: document.getElementById('before_watch').value,
-        after_watch: document.getElementById('after_watch').value,
+        comment: document.getElementById('comment').value,
         site: document.getElementById('site').value,
     }
     fetch(endpoints.episodes.create,
@@ -122,7 +130,7 @@ const createTitleEvent =() => {
 
 const recordSeasonSummary = () => {
     var updateFields = {
-        season_name: document.getElementById('summary_season_name').value,
+        id: document.getElementById('summary_season').value,
         updated_fields: {
             summary: document.getElementById('summary_about_season').value
         }
@@ -165,11 +173,62 @@ const recordTitleSummary = () => {
     })
 }
 
+const deleteEpisode = async (id) => {
+    return await fetch(endpoints.episodes.delete, {
+        method: 'delete',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: id
+        })
+    });
+}
+const deleteSeason = async (id) => {
+    return await fetch(endpoints.season.delete, {
+        method: 'delete',                
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: id
+        })
+    })
+}
+
+const deleteTitle = async (name) => {
+    return fetch(endpoints.title.delete, {
+        method: 'delete',                
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            title_name: name
+        })
+    })
+}
 
 const setPlayerData = info => {
-    console.log(info)
-    document.getElementById('episode_time').value = Math.round(info?.episodeDuration / 60);
-    document.getElementById('watched_time').value = Math.round(info?.episodeCurrentTime / 60);
+    document.getElementById('duration').value = Math.round((info?.episodeDuration / 60) * 100) / 100;
+    document.getElementById('watched_time').value = Math.round((info?.episodeCurrentTime / 60) * 100) / 100;
+}
+
+const generateMiniEpisodes = (season) => {
+    var wacthedEpisodesMap = season.episodes.reduce((obj, ep) => Object.assign(obj, { [ep.episodeOrder]: ep }), {});
+    return [...Array(season.episodeCount).keys()].map(epOrder => {
+        epOrder = epOrder +1 
+        ep = wacthedEpisodesMap[epOrder]
+        if (wacthedEpisodesMap[epOrder]){
+            return `
+            <span style="background: green;" 
+            title="Серия: ${ep.episodeOrder}&#10;Дата просмотра: ${ep.watchDate}&#10;Минут просмотрено: ${ep.watchedTime}"
+            >
+            ${epOrder}
+            </span>`
+        } else {
+            return `<span>${epOrder}</span>`
+        }
+    }).join('|')
 }
 
 
@@ -179,46 +238,39 @@ const setSiteData = info => {
     })
     ).then(response => response.json()
     ).then(season => {
-        console.log(season)
-        
-        if (season.seasonName){
+        if (season?.id){
+            localStorage.setItem('currentSeasonId', season.id);
             var seasonName = season.seasonName;
             var titleName = season.title.titleName;
-            var episodeOrder = info.episodeOrder;
+            var currentEpisode = season.episodes.filter(e => e.episodeOrder === info.episodeOrder)[0]
 
             if (season.episodeCount <= season.episodes.length){
                 document.getElementById('watched_successfully').style.removeProperty('display');   
             }
-            if (season.episodes.filter(e => e.episodeOrder === info.episodeOrder).length !== 0){
+            if (currentEpisode){
                 document.getElementById('episode_already_exists').style.removeProperty('display');  
+                document.getElementById('comment').value = currentEpisode.comment;
             }
-            var wacthedEpisodesMap = season.episodes.reduce((obj, ep) => Object.assign(obj, { [ep.episodeOrder]: ep }), {});
-            document.getElementById('watched_episodes_list').innerHTML = [...Array(season.episodeCount).keys()].map(epOrder => {
-                epOrder = epOrder +1 
-                ep = wacthedEpisodesMap[epOrder]
-                if (wacthedEpisodesMap[epOrder]){
-                    return `
-                    <span style="background: green;" 
-                    title="Серия: ${ep.episodeOrder}&#10;Дата просмотра: ${ep.watchDate}&#10;Минут просмотрено: ${ep.watchedTime}"
-                    >
-                    ${epOrder}
-                    </span>`
-                } else {
-                    return `<span>${epOrder}</span>`
-                }
-            }).join('|')
+
+            document.getElementById('watched_episodes_list').innerHTML = generateMiniEpisodes(season);
             document.getElementById('seems_season_already_exists').style.removeProperty('display');  
         } else {
             var titleName = info.titleName;
             var seasonName = info.seasonName;
-            var episodeOrder = info.episodeOrder;
             document.getElementById('must_be_registered').style.removeProperty('display');   
         }
-        var translateType = info.translateType;
-        var site = info.site;    
 
-        showSiteInformation(seasonName, titleName, episodeOrder, translateType, site)
+        showSiteInformation(seasonName, titleName, info.episodeOrder, info.translateType, info.site)
     })
+
+
+    const createTagWithArgs = (tag, args) => {
+        element = document.createElement(tag)
+        Object.keys(args).forEach(arg => {
+            element[arg] = args[arg];
+        })
+        return element;
+    }
     fetch(endpoints.title.all
     ).then(response => response.json()
     ).then(titles => {
@@ -226,17 +278,9 @@ const setSiteData = info => {
         var deletingTitles = document.getElementById('delete_title_name')
         var summaryTitles = document.getElementById('summary_title_name')
         titles.forEach(title => {
-            let titleNameOptionRegister = document.createElement('option')
-            titleNameOptionRegister.value = title.titleName;
-            titleNameOptionRegister.innerHTML = title.titleName;
-
-            let titleNameOptionDelete = document.createElement('option')
-            titleNameOptionDelete.value = title.titleName;
-            titleNameOptionDelete.innerHTML = title.titleName;
-
-            let titleNameOptionSummary = document.createElement('option')
-            titleNameOptionSummary.value = title.titleName;
-            titleNameOptionSummary.innerHTML = title.titleName;
+            const titleNameOptionRegister = createTagWithArgs('option', {value: title.titleName, innerHTML: title.titleName})
+            const titleNameOptionDelete = createTagWithArgs('option', {value: title.titleName, innerHTML: title.titleName})
+            const titleNameOptionSummary = createTagWithArgs('option', {value: title.titleName, innerHTML: title.titleName})
 
             registrationTitles.appendChild(titleNameOptionRegister)
             deletingTitles.appendChild(titleNameOptionDelete)
@@ -244,22 +288,22 @@ const setSiteData = info => {
         })
     }
     )
+
     var deleteTitleSection = document.getElementById('delete_title_name')
     var deleteSeasonSection = document.getElementById('delete_season_name')
     var deleteEpisodeSection = document.getElementById('delete_episode_order')
+
     var summaryTitleSection = document.getElementById('summary_title_name')
-    var summarySeasonSection = document.getElementById('summary_season_name')
+    var summarySeasonSection = document.getElementById('summary_season')
     var deleteButton = document.getElementById('delete_button');
-    deleteTitleSection.addEventListener('change', (e) => {
+    deleteTitleSection.addEventListener('change', (_) => {
         fetch(endpoints.title.get + new URLSearchParams({
             title_name: deleteTitleSection.value
         })
         ).then(response => response.json()
         ).then(title => {
             title.seasons.forEach(season => {
-                let seasonNameOption = document.createElement('option')
-                seasonNameOption.value = season.seasonName;
-                seasonNameOption.innerHTML = season.seasonName;
+                const seasonNameOption = createTagWithArgs('option', {value: season.id, innerHTML: season.seasonName})
                 deleteSeasonSection.appendChild(seasonNameOption)
             })
             deleteSeasonSection.removeAttribute('disabled');
@@ -267,14 +311,14 @@ const setSiteData = info => {
     })
     deleteSeasonSection.addEventListener('change', (e) => {
         fetch(endpoints.season.get + new URLSearchParams({
-            season_name: deleteSeasonSection.value
+            id: deleteSeasonSection.value
         })
         ).then(response => response.json()
         ).then(season => {
             season.episodes.forEach(episode => {
-                let episodeOrderOption = document.createElement('option')
-                episodeOrderOption.value = episode.episodeName;
-                episodeOrderOption.innerHTML = `${episode.episodeName} (${episode.episodeOrder})`;
+                const episodeOrderOption = createTagWithArgs('option', {
+                    value: episode.id, innerHTML: `${episode.episodeName} (${episode.episodeOrder})`
+                })
                 deleteEpisodeSection.appendChild(episodeOrderOption)
             })
         })
@@ -282,60 +326,24 @@ const setSiteData = info => {
     })
     deleteButton.addEventListener('click', (_) => {
         const titleName = deleteTitleSection.value;
-        const seasonName = deleteSeasonSection.value;
-        const episodeName = deleteEpisodeSection.value;
-        if (episodeName && seasonName && titleName){
-            fetch(endpoints.episodes.delete, {
-                method: 'delete',                
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    episode_name: episodeName
-                })
-            }).then(response => {
-                if (response.status === 200){
-                    deleteButton.innerHTML = 'Удалено!'
-                } else {
-                    deleteButton.innerHTML = 'Что-то пошло не так. Подробности в консоли.'
-                    console.dir(response)
-                }
-            })
-        } else if (seasonName && titleName){
-            fetch(endpoints.season.delete, {
-                method: 'delete',                
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    season_name: seasonName
-                })
-            }).then(response => {
-                if (response.status === 200){
-                    deleteButton.innerHTML = 'Удалено!'
-                } else {
-                    deleteButton.innerHTML = 'Что-то пошло не так. Подробности в консоли.'
-                    console.dir(response)
-                }
-            })
+        const seasonId = deleteSeasonSection.value;
+        const episodeId = deleteEpisodeSection.value;
+
+        if (episodeId && seasonId && titleName){
+            var [deleteFunction, objectId] = [deleteEpisode, episodeId]
+        } else if (seasonId && titleName){
+            var [deleteFunction, objectId] = [deleteSeason, seasonId]
         } else if (titleName){
-            fetch(endpoints.title.delete, {
-                method: 'delete',                
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    title_name: titleName
-                })
-            }).then(response => {
-                if (response.status === 200){
-                    deleteButton.innerHTML = 'Удалено!'
-                } else {
-                    deleteButton.innerHTML = 'Что-то пошло не так. Подробности в консоли.'
-                    console.dir(response)
-                }
-            })
+            var [deleteFunction, objectId] = [deleteTitle, titleName]
         }
+        deleteFunction(objectId).then(response => {
+            if (response.status === 200){
+                deleteButton.innerHTML = 'Удалено!'
+            } else {
+                deleteButton.innerHTML = 'Что-то пошло не так. Подробности в консоли.'
+                console.dir(response)
+            }
+        })
     })
     summaryTitleSection.addEventListener('change', (e) => {
         fetch(endpoints.title.get + new URLSearchParams({
@@ -344,9 +352,7 @@ const setSiteData = info => {
         ).then(response => response.json()
         ).then(title => {
             title.seasons.forEach(season => {
-                let seasonNameOption = document.createElement('option')
-                seasonNameOption.value = season.seasonName;
-                seasonNameOption.innerHTML = season.seasonName;
+                const seasonNameOption = createTagWithArgs('option', {value: season.id, innerHTML: season.seasonName})
                 summarySeasonSection.appendChild(seasonNameOption)
             })
             document.getElementById('summary_about_title').value = title.summary;
@@ -355,18 +361,19 @@ const setSiteData = info => {
     })
     summarySeasonSection.addEventListener('change', (e) => {
         fetch(endpoints.season.get + new URLSearchParams({
-            season_name: summarySeasonSection.value
+            id: summarySeasonSection.value
         })
         ).then(response => response.json()
         ).then(season => {
             document.getElementById('summary_about_season').value = season.summary || '';
         })
     })
-    document.getElementById('before_watch').value = localStorage.getItem('before_watch_no_saved_content');
-    document.getElementById('after_watch').value = localStorage.getItem('after_watch_no_saved_content');
+    document.getElementById('comment').value = localStorage.getItem('comment_no_saved_content');
     document.getElementById('reg_season_name').value = info.seasonName;
     document.getElementById('reg_episodes_count').value = info.episodesCount;
 };
+
+
 
 const showSiteInformation = (seasonName, titleName, episodeOrder, translateType, site) => {
     document.getElementById('season_name').value = seasonName;
@@ -403,8 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 document.getElementById('push_button').addEventListener('click', function(e){
-    localStorage.setItem('before_watch_no_saved_content', '')
-    localStorage.setItem('after_watch_no_saved_content', '')
+    localStorage.setItem('comment_no_saved_content', '')
     createEpisodeEvent()
 })
 
@@ -415,14 +421,10 @@ document.getElementById('create_title_button').addEventListener('click', functio
     createTitleEvent()
 })
 
-document.getElementById('before_watch').addEventListener('change', function(e) {
-    localStorage.setItem('before_watch_no_saved_content', e.target.value)
+document.getElementById('comment').addEventListener('change', function(e) {
+    localStorage.setItem('comment_no_saved_content', e.target.value)
     
 })
-document.getElementById('after_watch').addEventListener('change', function(e) {
-    localStorage.setItem('after_watch_no_saved_content', e.target.value)  
-})
-
 document.getElementById('summary_title_record_button').addEventListener('click', function(e){
     recordTitleSummary()
 })
