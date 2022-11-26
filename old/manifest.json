@@ -1,0 +1,32 @@
+{
+    "name": "TimeEater Extension",
+    "description": "Just TimeEater",
+    "version": "1.0",
+    "permissions":[
+        "tabs",
+        "activeTab",
+        "scripting"
+    ],
+    "manifest_version": 3,
+    "content_security_policy": {
+      "sandbox": "sandbox allow-scripts; script-src 'unsafe-hashes'"
+    },
+    "background": {
+      "service_worker": "./background.js"
+    },
+    "content_scripts": [{
+        "matches": ["*://*.animejoy.ru/*"],
+        "js": ["./content.js"],
+        "css": ["notification.css"]
+      },
+      {
+        "matches": ["*://*.sibnet.ru/*", "*://*.csst.online/*", "*://*.secvideo1.online/*", "*://*.uboost.one/*"],
+        "all_frames": true,
+        "js": ["./player.js"]
+      }
+    ],
+    "action": {
+      "default_popup": "./popup.html",
+      "default_icon": "./icon.png"
+    }
+  }

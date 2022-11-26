@@ -1,0 +1,30 @@
+{
+  "name": "timeeaterextension",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --config webpack/webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Always-prog/timeEater-extension.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Always-prog/timeEater-extension/issues"
+  },
+  "homepage": "https://github.com/Always-prog/timeEater-extension#readme",
+  "devDependencies": {
+    "@types/chrome": "^0.0.203",
+    "ts-loader": "^9.4.1",
+    "typescript": "^4.9.3",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.0"
+  },
+  "dependencies": {
+    "copy-webpack-plugin": "^11.0.0"
+  }
+}
