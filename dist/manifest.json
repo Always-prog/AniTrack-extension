@@ -15,14 +15,10 @@
       "service_worker": "./background.js"
     },
     "content_scripts": [{
-        "matches": ["*://*.animejoy.ru/*"],
+        "matches": ["*://*.animejoy.ru/*", "*://*.sibnet.ru/*", "*://*.csst.online/*", "*://*.secvideo1.online/*", "*://*.uboost.one/*"],
         "js": ["./content.js"],
-        "css": ["notification.css"]
-      },
-      {
-        "matches": ["*://*.sibnet.ru/*", "*://*.csst.online/*", "*://*.secvideo1.online/*", "*://*.uboost.one/*"],
         "all_frames": true,
-        "js": ["./player.js"]
+        "css": ["notification.css"]
       }
     ],
     "action": {
