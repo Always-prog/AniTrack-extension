@@ -5,15 +5,52 @@
   <body>
     <script src="./popup.js"></script>
     <div style="width: 400px; height: auto">
-    <p>
-      <h2 id="title-name"></h2>
-    </p>
-    <p>
-      <h3 id="episode-order"></h3>
-    </p>
-    <p>
-      <img id="titile-img"/>
-    </p>
+    <span id="watching-info" style="display: none;">
+      <p>
+        <h2 id="title-name"></h2>
+      </p>
+      <p>
+        <h3 id="episode-order"></h3>
+      </p>
+      <p>
+        <img id="titile-img"/>
+      </p>
+    </span>
+    <span id="login-form" style="display: none;">
+      <h3>You must be logged in</h3>
+      <p>
+        <label for="login-username">Username: </label>
+        <input type="text" id="login-username" required>
+      </p>
+      <p>
+        <label for="login-password">Password: </label>
+        <input type="password" id="login-password" required>
+      </p>
+      <p>
+        <button id="login-button">Login</button>
+      </p>
+      <p id="login-message" style="display: none;">
+        Incorrent login.
+      </p>
+    </span>
+    <span id="register-account" style="display: none;">
+      <h3>Registration</h3>
+      <p>
+        <label for="register-username">Username: </label>
+        <input type="text" id="register-username" required>
+      </p>
+      <p>
+        <label for="register-login">Email: </label>
+        <input type="text" id="register-login" required>
+      </p>
+      <p>
+        <label for="register-password">Password: </label>
+        <input type="password" id="register-password" required>
+      </p>
+      <p>
+        <button id="register-button">Register</button>
+      </p>
+    </span>
   </div>
   </body>
 </html>

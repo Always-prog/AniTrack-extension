@@ -1,31 +1,43 @@
 import { source, sourceType, sourceId } from "../types";
 
-export type watchedFrom = number;
-export type watchedTime = number;
-export type watchedDatetime = string;
-export type episodeOrder = number; 
-export type translateType = string; // 'Субтитры' | 'Subtitles' | 'AniDub' ...
-export type site = string; 
+export type WatchedFrom = number;
+export type WatchedTime = number;
+export type WatchedDatetime = string;
+export type EpisodeOrder = number; 
+export type TranslateType = string; // 'Субтитры' | 'Subtitles' | 'AniDub' ...
+export type Site = string; 
 
-export type titleName = string;
+export type TitleName = string;
 
 export interface Record {
     source: source,
     sourceType: sourceType,
     sourceId: sourceId,
-    watchedFrom: watchedFrom,
-    watchedTime: watchedTime,
-    watchedDatetime: watchedDatetime,
-    episodeOrder: episodeOrder,
-    translateType: translateType,
-    site: site
+    watchedFrom: WatchedFrom,
+    watchedTime: WatchedTime,
+    watchedDatetime: WatchedDatetime,
+    episodeOrder: EpisodeOrder,
+    translateType: TranslateType,
+    site: Site
 }
 
 export interface MALTitle {
     id: sourceId,
-    title: titleName,
+    title: TitleName,
     main_picture: {
         large: string,
         medium: string,
     }
+}
+
+
+export type UserId = number;
+export type Username = string;
+export type UserEmail = string;
+export type UserPassword = string;
+
+export interface Me {
+    id: UserId,
+    username: Username
+    email: UserEmail
 }

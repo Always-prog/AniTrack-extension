@@ -1,37 +1,28 @@
 import { searchByTitleName } from "./api/timeEater/requests";
-import { getTitleName as getTitleNameAnimejoy } from "./parsers/animejoy";
+import { prepareTitleName } from "./api/utils";
+import { getAnimeSite, videoHosts } from "./parsers/main";
 import { TitleContent } from "./types";
 
-const videoHosts = [
-    'video.sibnet.ru'
-]
 
-const animeHosts = [
-    'animejoy.ru'
-]
 
-function isAnimeHost(){
-    return animeHosts.includes(window.location.host) && !videoHosts.includes(window.location.host);
-}
+
 var siteTitleName = null;
-var isSupportedSite = false;
-if (isAnimeHost()){
-    siteTitleName = getTitleNameAnimejoy();
-    console.log(siteTitleName)
+var animeSiteProvider = getAnimeSite();
+if (animeSiteProvider){  
+    siteTitleName = animeSiteProvider.getTitleName(); // TOOD: program tries to parse main page also. Fix that.
     if (!siteTitleName){
         window.prompt('timeEater: site is supported, but we can\'t load the title name. Please input the name of title you watching', '');
         
     } else {
+        siteTitleName = prepareTitleName(siteTitleName);
         searchByTitleName(siteTitleName).then(title => {
             localStorage.setItem('titleName', title.title)
             localStorage.setItem('titleImage', title.main_picture.medium)
             localStorage.setItem('titleId', title.id.toString())
         })
-        isSupportedSite = true;
     }
 
 }
-
 
 
 
@@ -87,13 +78,11 @@ if (videoHosts.includes(window.location.host)){
 
 
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
-    if ((msg.from === 'popup') && (msg.subject === 'content') && isAnimeHost()) {
+    if ((msg.from === 'popup') && (msg.subject === 'content') && animeSiteProvider) {
       const titleContent = {
         titleName: localStorage.getItem('titleName'),
         titleImage: localStorage.getItem('titleImage')
       } as TitleContent;
-      console.log(window.location.host)
-      console.log(localStorage)
       response(titleContent);
     }
 });

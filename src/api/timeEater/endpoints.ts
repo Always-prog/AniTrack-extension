@@ -4,5 +4,7 @@ export const endpoints = {
     record: {
         create: baseUrl + '/record/create'
     },
-    mal: baseUrl + '/mal'
+    me: baseUrl + '/me',
+    mal: baseUrl + '/mal',
+    token: baseUrl + '/token'
 }
