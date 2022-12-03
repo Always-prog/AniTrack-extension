@@ -4,10 +4,12 @@ import { camelCaseKeysToUnderscore, getAuthToken, searchMaxLen } from "../utils"
 
 
 export async function me(): Promise<Response>{
-    const authToken = getAuthToken();
-    return await fetch(endpoints.me, {method: 'GET', headers:{
-        'Authorization': `Bearer ${authToken}`
-    }})
+    return await getAuthToken().then(authToken => {
+        return fetch(endpoints.me, {method: 'GET', headers:{
+            'Authorization': `Bearer ${authToken}`
+        }})
+    })
+
 }
 
 export async function createRecord(record: Record){

@@ -7,12 +7,8 @@ export function saveAuthToken(token: AuthToken){
     chrome.storage.local.set({ "timeEaterAuthToken": token }, function(){
     });
 }
-export function getAuthToken(){
-    var authToken='';
-    chrome.storage.local.get(["timeEaterAuthToken"], function(items){
-        authToken=items.authToken
-    });
-    return authToken;
+export async function getAuthToken(){
+    return await chrome.storage.local.get(["timeEaterAuthToken"]).then(data => data.timeEaterAuthToken)
 }
 
 export function prepareTitleName(titleName: TitleName){
