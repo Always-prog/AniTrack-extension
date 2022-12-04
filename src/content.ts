@@ -86,7 +86,6 @@ if (isVideoHost(window.location.host)){
     var isPlaying = false;
     var timeFrom = 0;
     var timePlayed = 0;
-    var fullscreenCount = 0;
 
     function videoStartedPlaying() {
         isPlaying = true;
@@ -107,8 +106,7 @@ if (isVideoHost(window.location.host)){
     }
 
     function onFullScreenChanged(event: Event){
-        fullscreenCount += 1;
-        if (fullscreenCount % 2 === 0 && timePlayed > 5){
+        if (timePlayed > 5){
             presaveRecord();
         }
     }
