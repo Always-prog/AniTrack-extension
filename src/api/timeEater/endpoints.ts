@@ -7,5 +7,6 @@ export const endpoints = {
     me: baseUrl + '/me',
     mal: baseUrl + '/mal',
     register: baseUrl + '/register',
-    token: baseUrl + '/token'
+    token: baseUrl + '/token',
+    dropToken: baseUrl + '/token/drop'
 }

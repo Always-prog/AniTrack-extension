@@ -57,3 +57,16 @@ export async function register(username: Username, email: UserEmail, password: U
         })
     })
 }
+
+export async function dropToken(){
+    return await getAuthToken().then(authToken => {
+        return fetch(endpoints.dropToken, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+        })
+    })
+
+}

@@ -6,15 +6,22 @@
     <script src="./popup.js"></script>
     <div style="width: 400px; height: auto">
     <span id="watching-info" style="display: none;">
-      <p>
-        <h2 id="title-name"></h2>
-      </p>
-      <p>
-        <h3 id="episode-order"></h3>
-      </p>
-      <p>
-        <img id="titile-img"/>
-      </p>
+      <div style="display: list-item;">
+        <p>
+          <h2 id="title-name"></h2>
+        </p>
+        <p>
+          <h3 id="episode-order"></h3>
+        </p>
+        <p style="align-items:center;">
+          <img id="titile-img"/>
+        </p>
+      </div> 
+      <div>
+        <p><a href="http://localhost:8088" target="_blank">Go To Analytics</a></p>
+        <button id="logout-button">Logout</button>
+      </div>
+
     </span>
     <span id="login-form" style="display: none;">
       <h3>You must be logged in</h3>

@@ -2,15 +2,20 @@ import { TitleName } from "./timeEater/types";
 import { AuthToken } from "./types";
 
 export const searchMaxLen = 64;
+export const authTokenKey = 'timeEaterAuthToken';
+
 
 export function saveAuthToken(token: AuthToken){
-    chrome.storage.local.set({ "timeEaterAuthToken": token }, function(){
+    chrome.storage.local.set({[authTokenKey]: token }, function(){
     });
 }
 export async function getAuthToken(){
-    return await chrome.storage.local.get(["timeEaterAuthToken"]).then(data => data.timeEaterAuthToken)
+    return await chrome.storage.local.get([authTokenKey]).then(data => data.timeEaterAuthToken)
 }
+export function deleteAuthToken(){
+    chrome.storage.local.remove(authTokenKey)
 
+}
 export function prepareTitleName(titleName: TitleName){
     /* The limit of searching in the MAL API is 64 symbols */
     /* So, we need to prepare that name to 64 symbols with saving season name  */

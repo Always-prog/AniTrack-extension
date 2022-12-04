@@ -1,7 +1,7 @@
 import { TitleContent } from "./types"
-import { login, me, register } from './api/timeEater/requests';
+import { dropToken, login, me, register } from './api/timeEater/requests';
 import { response } from "express";
-import { saveAuthToken } from "./api/utils";
+import { deleteAuthToken, saveAuthToken } from "./api/utils";
 
 function setTitleContent(content: TitleContent){
     document.getElementById('titile-img')?.setAttribute('src', content.titleImage);
@@ -89,4 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('register-form')?.style.removeProperty('display');
     })
     
+    document.getElementById('logout-button')?.addEventListener('click', function(_){
+        dropToken();
+        deleteAuthToken();
+        document.getElementById('watching-info')?.style.setProperty('display', 'none');
+        document.getElementById('login-form')?.style.removeProperty('display');
+    })
 })
