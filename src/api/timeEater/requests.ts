@@ -1,5 +1,5 @@
 import { endpoints } from "./endpoints";
-import { MALTitle, Record, Me, Username, UserPassword } from "./types";
+import { MALTitle, Record, Me, Username, UserPassword, UserEmail } from "./types";
 import { camelCaseKeysToUnderscore, getAuthToken, prepareTitleName } from "../utils";
 
 
@@ -41,5 +41,19 @@ export async function login(username: Username, password: UserPassword): Promise
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: loginData
+    })
+}
+
+export async function register(username: Username, email: UserEmail, password: UserPassword): Promise<Response>{
+    return await fetch(endpoints.register, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username: username,
+            email: email,
+            password: password
+        })
     })
 }

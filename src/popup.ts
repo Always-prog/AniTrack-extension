@@ -1,5 +1,5 @@
 import { TitleContent } from "./types"
-import { login, me } from './api/timeEater/requests';
+import { login, me, register } from './api/timeEater/requests';
 import { response } from "express";
 import { saveAuthToken } from "./api/utils";
 
@@ -41,6 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
             response => {
                 if (response.status !== 200){
                     let loginMessage = document.getElementById('login-message');
+                    response.json().then(data => {
+                        if (!loginMessage) return;
+                        loginMessage.innerHTML = data.detail;
+                    })
                     loginMessage?.style.removeProperty('display'); // TODO: Show message from backend 
                 } else {
                     document.getElementById('login-form')?.style.setProperty('display', 'none')
@@ -54,6 +58,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveAuthToken(data.access_token)
             }
         })
+    })
+
+    document.getElementById('register-button')?.addEventListener('click', function(_){
+        let username = (document.getElementById('register-username') as HTMLInputElement).value;
+        let email = (document.getElementById('register-email') as HTMLInputElement).value;
+        let password = (document.getElementById('register-password') as HTMLInputElement).value;
+
+        register(username, email, password).then(
+            response => {
+                if (response.status === 200){
+                    document.getElementById('login-form')?.style.removeProperty('display')
+                    document.getElementById('register-form')?.style.setProperty('display', 'none')
+                    document.getElementById('register-message')?.style.setProperty('display', 'none')
+                } else if (response.status === 409){
+                    response.json().then(data => {
+                        let registerMessage = document.getElementById('register-message')
+                        if (!registerMessage) return;
+                        registerMessage?.style.removeProperty('display')
+                        registerMessage.innerHTML = data.detail;
+                    })
+                }
+            }
+        )
+
+    })
+
+    document.getElementById('not-have-account-yet')?.addEventListener('click', function(_){
+        document.getElementById('login-form')?.style.setProperty('display', 'none');
+        document.getElementById('register-form')?.style.removeProperty('display');
     })
     
 })
