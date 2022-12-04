@@ -8,7 +8,7 @@ export function saveAuthToken(token: AuthToken){
     });
 }
 export async function getAuthToken(){
-    return await chrome.storage.local.get(["timeEaterAuthToken"]).then(data => 'invalid-token')//data.timeEaterAuthToken
+    return await chrome.storage.local.get(["timeEaterAuthToken"]).then(data => data.timeEaterAuthToken)
 }
 
 export function prepareTitleName(titleName: TitleName){
