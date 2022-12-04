@@ -19,6 +19,7 @@ export function deleteAuthToken(){
 export function prepareTitleName(titleName: TitleName){
     /* The limit of searching in the MAL API is 64 symbols */
     /* So, we need to prepare that name to 64 symbols with saving season name  */
+    if (titleName.length <= searchMaxLen) return titleName;
     return titleName.slice(0, 32) + titleName.slice(titleName.length-32, titleName.length);
 }
 

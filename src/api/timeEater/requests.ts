@@ -13,11 +13,16 @@ export async function me(): Promise<Response>{
 }
 
 export async function createRecord(record: Record){
-    const response = await fetch(endpoints.record.create, {
-        method: 'POST',
-        body: JSON.stringify(camelCaseKeysToUnderscore(record))
-    });
-    return response;
+    return await getAuthToken().then(authToken => {
+        return fetch(endpoints.record.create, {
+            method: 'POST',
+            headers:{
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },    
+            body: JSON.stringify(camelCaseKeysToUnderscore(record))
+        });
+    })
 }
 
 export async function searchByTitleName(titleName: string): Promise<MALTitle>{

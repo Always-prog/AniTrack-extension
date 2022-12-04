@@ -15,7 +15,7 @@ export interface Record {
     sourceId: sourceId,
     watchedFrom: WatchedFrom,
     watchedTime: WatchedTime,
-    watchedDatetime: WatchedDatetime,
+    watchDatetime: WatchedDatetime,
     episodeOrder: EpisodeOrder,
     translateType: TranslateType,
     site: Site
