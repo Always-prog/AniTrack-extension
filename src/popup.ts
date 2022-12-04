@@ -1,6 +1,5 @@
 import { TitleContent } from "./types"
 import { dropToken, login, me, register } from './api/timeEater/requests';
-import { response } from "express";
 import { deleteAuthToken, saveAuthToken } from "./api/utils";
 
 function setTitleContent(content: TitleContent){

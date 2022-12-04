@@ -1,7 +1,7 @@
 import { createRecord, searchByTitleName } from "./api/timeEater/requests";
 import { prepareTitleName } from "./api/utils";
 import { getFromStorageSiteData, updateStorage } from "./helpers";
-import { getAnimeSite, videoHosts } from "./parsers/main";
+import { getAnimeSite, isVideoHost, videoHosts } from "./parsers/main";
 import { RawEpisodeOrder } from "./parsers/types";
 import { TitleContent } from "./types";
 import { getCurrentDatetime, setToStorage } from "./utils";
@@ -10,9 +10,7 @@ import { getCurrentDatetime, setToStorage } from "./utils";
 
 var siteTitleName = null;
 var animeSiteProvider = getAnimeSite();
-
-if (animeSiteProvider && animeSiteProvider.isOnWachingPage()){  
-    console.log(animeSiteProvider)
+if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()){  
     siteTitleName = animeSiteProvider.getTitleName(); // TOOD: program tries to parse main page also. Fix that.
     if (!siteTitleName){
         window.prompt('timeEater: site is supported, but we can\'t load the title name. Please input the name of title you watching', '');
@@ -31,6 +29,18 @@ if (animeSiteProvider && animeSiteProvider.isOnWachingPage()){
         })
     }
 
+    chrome.runtime.onMessage.addListener((msg, _, response) => {
+        if ((msg.from === 'popup') && (msg.subject === 'content') && animeSiteProvider && animeSiteProvider.isOnWatchingPage()) {
+            const titleContent = {
+            titleName: localStorage.getItem('titleName'),
+            titleImage: localStorage.getItem('titleImage'),
+            episodeOrder: Number(animeSiteProvider.getCurrentEpisode())
+            } as TitleContent;
+            response(titleContent);
+        }
+    });
+    
+
 }
     
 
@@ -39,9 +49,7 @@ if (animeSiteProvider && animeSiteProvider.isOnWachingPage()){
 
 
 
-if (videoHosts.includes(window.location.host)){
-    console.log(window.location.host)
-    var video = document.getElementsByTagName('video')[0] as HTMLVideoElement;
+if (isVideoHost(window.location.host)){
     function presaveRecord(){
         getFromStorageSiteData().then(
             data => {
@@ -107,15 +115,3 @@ if (videoHosts.includes(window.location.host)){
     document.addEventListener('fullscreenchange', onFullScreenChanged);
     
 }
-
-
-chrome.runtime.onMessage.addListener((msg, _, response) => {
-    if ((msg.from === 'popup') && (msg.subject === 'content') && animeSiteProvider && animeSiteProvider.isOnWachingPage()) {
-      const titleContent = {
-        titleName: localStorage.getItem('titleName'),
-        titleImage: localStorage.getItem('titleImage'),
-        episodeOrder: Number(animeSiteProvider.getCurrentEpisode())
-      } as TitleContent;
-      response(titleContent);
-    }
-});

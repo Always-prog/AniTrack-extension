@@ -31,7 +31,6 @@ export async function searchByTitleName(titleName: string): Promise<MALTitle>{
     }
     ).then(response => response.json()
     ).then(data => {
-        console.log(data)
         return data['data'][0]['node']
     })
 }

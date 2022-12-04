@@ -16,10 +16,3 @@ chrome.runtime.onMessage.addListener((msg, _, response) => {
     });
     }
 });
-
-document.addEventListener('click', function (_){
-    alert('SOME')
-    chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
-        console.log(response.farewell);
-      });
-})

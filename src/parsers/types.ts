@@ -11,5 +11,5 @@ export interface SiteProvider {
     onPlayerLoad: (func: () => void) => null;
     getCurrentPageURL: () => string;
     onEpisodeChanged: (func: () => void) => null;
-    isOnWachingPage: () => boolean
+    isOnWatchingPage: () => boolean
 }

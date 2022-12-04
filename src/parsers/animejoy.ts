@@ -53,9 +53,10 @@ function onEpisodeChanged(func: () => void){
     })
 }
 
-function isOnWachingPage(){
+function isOnWatchingPage(){
     return window.location.pathname.includes('.html') // every episode on that site hosted as html
 }
+
 export default {
     site: site,
     getTitleName: getTitleName,
@@ -64,5 +65,5 @@ export default {
     getTranslateType: getTranslateType,
     getCurrentPageURL: getCurrentPageURL,
     onEpisodeChanged: onEpisodeChanged,
-    isOnWachingPage: isOnWachingPage
+    isOnWatchingPage: isOnWatchingPage
 } as SiteProvider
