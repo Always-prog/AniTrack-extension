@@ -1,3 +1,4 @@
+import { getMostLikeTitleInMal } from "./api/functions"
 import { searchByTitleName } from "./api/timeEater/requests"
 import { SiteProvider } from "./parsers/types"
 import { setToStorage } from "./utils"
@@ -12,10 +13,10 @@ export function updateStorage(siteProvider: SiteProvider){
         translateType: siteProvider.getTranslateType(),
         site: siteProvider.getCurrentPageURL()
     })
-    searchByTitleName(siteProvider.getTitleName()).then(title => {
+    getMostLikeTitleInMal(siteProvider.getTitleName()).then(node => {
         setToStorage({
-            titleName: title.title,
-            titleId: title.id.toString()
+            titleName: node.node.title,
+            titleId: node.node.id.toString()
         })
     })
 }

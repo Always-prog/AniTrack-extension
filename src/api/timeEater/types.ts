@@ -29,7 +29,10 @@ export interface MALTitle {
         medium: string,
     }
 }
-
+export interface MALNode {
+    node: MALTitle
+} 
+export type MALNodes = Array<MALNode>;
 
 export type UserId = number;
 export type Username = string;

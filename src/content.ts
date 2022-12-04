@@ -1,3 +1,4 @@
+import { getMostLikeTitleInMal } from "./api/functions";
 import { createRecord, searchByTitleName } from "./api/timeEater/requests";
 import { prepareTitleName } from "./api/utils";
 import { getFromStorageSiteData, updateStorage } from "./helpers";
@@ -18,10 +19,10 @@ if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()){
     } else {
         siteTitleName = prepareTitleName(siteTitleName);
         updateStorage(animeSiteProvider);
-        searchByTitleName(siteTitleName).then(title => {
-            localStorage.setItem('titleName', title.title)
-            localStorage.setItem('titleImage', title.main_picture.medium)
-            localStorage.setItem('titleId', title.id.toString())
+        getMostLikeTitleInMal(siteTitleName).then(node => {
+            localStorage.setItem('titleName', node.node.title)
+            localStorage.setItem('titleImage', node.node.main_picture.medium)
+            localStorage.setItem('titleId', node.node.id.toString())
         })
 
         animeSiteProvider.onPlayerLoad(() => {
@@ -50,6 +51,9 @@ if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()){
 
 
 if (isVideoHost(window.location.host)){
+    let video = document.getElementsByTagName('video')[0] as HTMLVideoElement;
+
+    
     function presaveRecord(){
         getFromStorageSiteData().then(
             data => {
