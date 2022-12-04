@@ -1,6 +1,6 @@
 import { endpoints } from "./endpoints";
 import { MALTitle, Record, Me, Username, UserPassword } from "./types";
-import { camelCaseKeysToUnderscore, getAuthToken, searchMaxLen } from "../utils";
+import { camelCaseKeysToUnderscore, getAuthToken, prepareTitleName } from "../utils";
 
 
 export async function me(): Promise<Response>{
@@ -21,11 +21,14 @@ export async function createRecord(record: Record){
 }
 
 export async function searchByTitleName(titleName: string): Promise<MALTitle>{
-    return await fetch(endpoints.mal + `?endpoint=/v2/anime?q=${titleName.slice(0, searchMaxLen)}`, {
+    return await fetch(endpoints.mal + `?endpoint=/v2/anime?q=${prepareTitleName(titleName)}`, {
         method: 'GET',
     }
     ).then(response => response.json()
-    ).then(data => data['data'][0]['node'])
+    ).then(data => {
+        console.log(data)
+        return data['data'][0]['node']
+    })
 }
 
 export async function login(username: Username, password: UserPassword): Promise<Response>{
