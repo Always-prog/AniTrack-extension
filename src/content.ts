@@ -53,7 +53,13 @@ if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()){
 if (isVideoHost(window.location.host)){
     let video = document.getElementsByTagName('video')[0] as HTMLVideoElement;
 
-    
+
+
+
+    let counter: ReturnType<typeof setTimeout>;
+    var isPlaying = false;
+    var timeFrom = 0;
+    var timePlayed = 0;
     function presaveRecord(){
         getFromStorageSiteData().then(
             data => {
@@ -81,13 +87,9 @@ if (isVideoHost(window.location.host)){
 
     }
 
-
-    let counter: ReturnType<typeof setTimeout>;
-    var isPlaying = false;
-    var timeFrom = 0;
-    var timePlayed = 0;
-
     function videoStartedPlaying() {
+        if (timePlayed > 5) presaveRecord() // playing event also trigger changing in timeline
+
         isPlaying = true;
         clearInterval(counter);
 
@@ -98,6 +100,10 @@ if (isVideoHost(window.location.host)){
                 timePlayed = timePlayed + 1;
             }
         }, 1000);
+    }
+
+    function videoUnpause(){
+        isPlaying = true;
     }
 
     function videoStoppedPlaying(event: Event) {
@@ -111,7 +117,7 @@ if (isVideoHost(window.location.host)){
         }
     }
     video.addEventListener("play", videoStartedPlaying);
-    video.addEventListener("playing", videoStartedPlaying);
+    video.addEventListener("playing", videoUnpause);
     video.addEventListener("ended", videoStoppedPlaying);
     video.addEventListener("pause", videoStoppedPlaying);
     document.addEventListener('fullscreenchange', onFullScreenChanged);
