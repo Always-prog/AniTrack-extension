@@ -5,6 +5,7 @@ import { AuthToken } from "./types";
 
 export const searchMaxLen = 64;
 export const authTokenKey = 'timeEaterAuthToken';
+export const nodeFields = ['num_episodes', 'start_date', 'related_anime'];
 
 
 export function saveAuthToken(token: AuthToken){
@@ -18,7 +19,7 @@ export function deleteAuthToken(){
     chrome.storage.local.remove(authTokenKey)
 
 }
-export function prepareTitleName(titleName: TitleName){
+export function prepareTitleName(titleName: RawTitleName): TitleName {
     /* The limit of searching in the MAL API is 64 symbols */
     /* So, we need to prepare that name to 64 symbols with saving season name  */
     if (titleName.length <= searchMaxLen) return titleName;

@@ -29,12 +29,12 @@ function onPlayerLoad(func: () => void){
 
 function getCurrentEpisode(): RawEpisodeOrder { 
     var playlist = document.getElementsByClassName('playlists-videos')[0];
-    if (!playlist) return 0;
+    if (!playlist) return 1;
     var active = playlist.getElementsByClassName('visible active')[0];
-    if (!active) return 0;
+    if (!active) return 1;
     
     // TODO: Attention that we can't find episode number!!!
-    if (!active?.textContent) return 0;
+    if (!active?.textContent) return 1;
     return parseInt(active?.textContent);
 }
 
@@ -48,13 +48,36 @@ function getCurrentPageURL(): string {
 
 function onEpisodeChanged(func: () => void){
     var playlist = document.getElementsByClassName('playlists-videos')[0];
-    playlist.addEventListener('click', function(_){
-        func()
+    var playlistLists = document.getElementsByClassName('playlists-lists')[0];
+    playlistLists.addEventListener('click', () => {
+        setTimeout(func, 1)
+    })
+    playlist.addEventListener('click', (e) => {
+        if ((e?.target as HTMLElement)?.tagName === 'LI') { // trigger only when episode is selected.
+            setTimeout(func, 1)
+        }
     })
 }
 
 function isOnWatchingPage(){
     return window.location.pathname.includes('.html') // every episode on that site hosted as html
+}
+
+function getStartDate(){
+    let desc = document.getElementsByClassName('blkdesc')[0];
+    let dates = Array.from(desc.getElementsByTagName('p')).filter(p => p.innerHTML.includes('Дата выпуска'));
+    let start_date = {
+        1: 1999,
+        2: 10,
+        3: 10,
+    }
+    if (dates[0]?.textContent){
+        // @ts-ignore: Object is possibly 'null'.
+        start_date = dates[0].textContent.match(/(\d{4}([.\-/ ])\d{2}\2\d{2}|\d{2}([.\-/ ])\d{2}\3\d{4})/)[0].match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+            
+    }
+    
+    return new Date(start_date[3], start_date[2], start_date[1])
 }
 
 export default {
@@ -63,6 +86,7 @@ export default {
     getCurrentEpisode: getCurrentEpisode,
     onPlayerLoad: onPlayerLoad,
     getTranslateType: getTranslateType,
+    getStartDate: getStartDate,
     getCurrentPageURL: getCurrentPageURL,
     onEpisodeChanged: onEpisodeChanged,
     isOnWatchingPage: isOnWatchingPage

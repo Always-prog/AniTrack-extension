@@ -1,14 +1,6 @@
 import { SiteProvider } from "./parsers/types";
 
 
-export function fillStorage(siteProvider: SiteProvider){
-    siteProvider.onPlayerLoad(() => {
-        setToStorage({episodeOrder: siteProvider.getCurrentEpisode().toString()})
-    })
-    localStorage.setItem('translateType', siteProvider.getTranslateType())
-    localStorage.setItem('site', window.location.href)
-}
-
 
 export function setToStorage(data: object){
     chrome.storage.local.set(data, function(){

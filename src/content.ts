@@ -1,15 +1,15 @@
-import { getMostLikeTitleInMal } from "./api/functions";
+import { consultWithMal } from "./api/functions";
 import { createRecord, searchByTitleName } from "./api/timeEater/requests";
 import { prepareTitleName } from "./api/utils";
 import { getFromStorageSiteData, updateStorage } from "./helpers";
 import { getAnimeSite, isVideoHost, videoHosts } from "./parsers/main";
-import { RawEpisodeOrder } from "./parsers/types";
+import { RawEpisodeOrder, RawTitleName } from "./parsers/types";
 import { TitleContent } from "./types";
-import { getCurrentDatetime, setToStorage } from "./utils";
+import { getCurrentDatetime, getFromStorage, setToStorage } from "./utils";
 
 
 
-var siteTitleName = null;
+var siteTitleName: RawTitleName | null = null;
 var animeSiteProvider = getAnimeSite();
 if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()){  
     siteTitleName = animeSiteProvider.getTitleName(); // TOOD: program tries to parse main page also. Fix that.
@@ -17,27 +17,40 @@ if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()){
         window.prompt('timeEater: site is supported, but we can\'t load the title name. Please input the name of title you watching', '');
         
     } else {
-        siteTitleName = prepareTitleName(siteTitleName);
+        
+        const updateInLocal = () => {
+            if (siteTitleName){
+                const episodeOrder = animeSiteProvider.getCurrentEpisode();
+                consultWithMal(siteTitleName, episodeOrder, animeSiteProvider.getStartDate()).then(data => {
+                    localStorage.setItem('titleName', data.title.node.title)
+                    localStorage.setItem('titleImage', data.title.node.main_picture.medium)
+                    localStorage.setItem('titleId', data.title.node.id.toString())
+                    localStorage.setItem('site', window.location.href)
+                    localStorage.setItem('episodeOrder', data.episodeOrder.toString())
+                })
+            }
+        }
+        updateInLocal();
         updateStorage(animeSiteProvider);
-        getMostLikeTitleInMal(siteTitleName).then(node => {
-            localStorage.setItem('titleName', node.node.title)
-            localStorage.setItem('titleImage', node.node.main_picture.medium)
-            localStorage.setItem('titleId', node.node.id.toString())
-        })
+        
 
         animeSiteProvider.onPlayerLoad(() => {
-            animeSiteProvider.onEpisodeChanged(() => updateStorage(animeSiteProvider))
+            animeSiteProvider.onEpisodeChanged(() => {
+                updateInLocal()
+                updateStorage(animeSiteProvider)
+            })
         })
+        
     }
 
     chrome.runtime.onMessage.addListener((msg, _, response) => {
         if ((msg.from === 'popup') && (msg.subject === 'content') && animeSiteProvider && animeSiteProvider.isOnWatchingPage()) {
             const titleContent = {
-            titleName: localStorage.getItem('titleName'),
-            titleImage: localStorage.getItem('titleImage'),
-            episodeOrder: Number(animeSiteProvider.getCurrentEpisode())
-            } as TitleContent;
-            response(titleContent);
+                titleName: localStorage.getItem('titleName'),
+                titleImage: localStorage.getItem('titleImage'),
+                episodeOrder: Number(localStorage.getItem('episodeOrder'))
+                } as TitleContent;
+                response(titleContent);
         }
     });
     
@@ -52,10 +65,6 @@ if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()){
 
 if (isVideoHost(window.location.host)){
     let video = document.getElementsByTagName('video')[0] as HTMLVideoElement;
-
-
-
-
     let counter: ReturnType<typeof setTimeout>;
     var isPlaying = false;
     var timeFrom = 0;

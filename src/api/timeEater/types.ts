@@ -21,13 +21,24 @@ export interface Record {
     site: Site
 }
 
+export interface RelationAnime {
+    relation_type: string;
+    relation_type_formatted: string;
+}
+
+
+export interface MALTitleRelation extends MALNode, RelationAnime {};
+
 export interface MALTitle {
     id: sourceId,
     title: TitleName,
     main_picture: {
         large: string,
         medium: string,
-    }
+    },
+    num_episodes: number;
+    start_date: string;
+    related_anime: Array<MALTitleRelation>;
 }
 export interface MALNode {
     node: MALTitle

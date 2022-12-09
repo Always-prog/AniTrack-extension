@@ -12,4 +12,5 @@ export interface SiteProvider {
     getCurrentPageURL: () => string;
     onEpisodeChanged: (func: () => void) => null;
     isOnWatchingPage: () => boolean
+    getStartDate: () => Date;
 }
