@@ -62,6 +62,57 @@ if (isVideoHost(window.location.host)) {
     var timeFrom = 0;
     var timePlayed = 0;
 
+
+    const successLoadVideo = () => {
+        console.log('success load video!')
+        function videoStartedPlaying() {
+            isPlaying = true;
+            clearInterval(counter);
+
+            timeFrom = Math.round(video.currentTime);
+            timePlayed = 0;
+            counter = setInterval(function () {
+                if (isPlaying) {
+                    timePlayed += 1;
+                }
+            }, 1000);
+        }
+
+        function videoUnpause() {
+            isPlaying = true;
+        }
+
+        function videoStoppedPlaying(event: Event) {
+            isPlaying = false;
+            triggerSaveRecord()
+        }
+
+        function onFullScreenChanged(event: Event) {
+            triggerSaveRecord();
+
+        }
+        video.addEventListener("play", videoStartedPlaying);
+        video.addEventListener("playing", videoUnpause);
+        video.addEventListener("ended", videoStoppedPlaying);
+        video.addEventListener("pause", videoStoppedPlaying);
+        document.addEventListener('fullscreenchange', onFullScreenChanged);
+
+    }
+    let waitingVideoInterval: ReturnType<typeof setInterval> | null = null;
+    if (!video) {
+        if (waitingVideoInterval) clearInterval(waitingVideoInterval);
+
+        waitingVideoInterval = setInterval(() => {
+            video = document.getElementsByTagName('video')[0] as HTMLVideoElement;
+            if (video) {
+                successLoadVideo()
+                if (waitingVideoInterval) clearInterval(waitingVideoInterval)
+            }
+        }, 1000)
+    }
+
+
+
     const triggerSaveRecord = () => {
         chrome.runtime.sendMessage({ mytab: true }, tabId => {
             chrome.runtime.sendMessage({ to: tabId.tab, siteRequest: true, from: 'video' }, function (response) {
@@ -70,57 +121,27 @@ if (isVideoHost(window.location.host)) {
         });
     }
 
-    function videoStartedPlaying() {
-        isPlaying = true;
-        clearInterval(counter);
-
-        timeFrom = Math.round(video.currentTime);
-        timePlayed = 0;
-        counter = setInterval(function () {
-            if (isPlaying) {
-                timePlayed += 1;
-            }
-        }, 1000);
-    }
-
-    function videoUnpause() {
-        isPlaying = true;
-    }
-
-    function videoStoppedPlaying(event: Event) {
-        isPlaying = false;
-        if (timePlayed > 5) triggerSaveRecord()
-    }
-
-    function onFullScreenChanged(event: Event) {
-        if (timePlayed > 5) {
-            triggerSaveRecord();
-        }
-    }
-    video.addEventListener("play", videoStartedPlaying);
-    video.addEventListener("playing", videoUnpause);
-    video.addEventListener("ended", videoStoppedPlaying);
-    video.addEventListener("pause", videoStoppedPlaying);
-    document.addEventListener('fullscreenchange', onFullScreenChanged);
-
 
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.siteAnswer && request.from === 'video') {
             console.log('Saving video with data...')
-            let record = {
-                source: request.watchingData.source,
-                sourceType: request.watchingData.sourceType,
-                site: request.watchingData.site,
-                sourceId: request.watchingData.sourceId,
-                episodeOrder: request.watchingData.episodeOrder,
-                translateType: request.watchingData.translateType,
-                watchedFrom: timeFrom,
-                watchedTime: timePlayed,
-                watchDatetime: getCurrentDatetime().toString()
-            }
-            createRecord(record)
-            timePlayed = 0;
-            timeFrom = 0;
+            if (timePlayed > 5) {
+                let record = {
+                    source: request.watchingData.source,
+                    sourceType: request.watchingData.sourceType,
+                    site: request.watchingData.site,
+                    sourceId: request.watchingData.sourceId,
+                    episodeOrder: request.watchingData.episodeOrder,
+                    translateType: request.watchingData.translateType,
+                    watchedFrom: timeFrom,
+                    watchedTime: timePlayed,
+                    watchDatetime: getCurrentDatetime().toString()
+                }
+                createRecord(record)
+                timePlayed = 0;
+                timeFrom = 0;
+            } else console.log('timePlayed is too small for saving. Skip.')
+
         }
     });
 
