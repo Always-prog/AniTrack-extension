@@ -10,7 +10,6 @@ export interface SiteProvider {
     getTranslateType: () => TranslateType;
     onPlayerLoad: (func: () => void) => null;
     getCurrentPageURL: () => string;
-    onEpisodeChanged: (func: () => void) => null;
     isOnWatchingPage: () => boolean
     getStartDate: () => Date;
 }

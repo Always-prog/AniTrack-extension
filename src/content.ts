@@ -1,61 +1,51 @@
 import { consultWithMal } from "./api/functions";
-import { createRecord, searchByTitleName } from "./api/timeEater/requests";
-import { prepareTitleName } from "./api/utils";
-import { getFromStorageSiteData, updateStorage } from "./helpers";
-import { getAnimeSite, isVideoHost, videoHosts } from "./parsers/main";
-import { RawEpisodeOrder, RawTitleName } from "./parsers/types";
+import { createRecord } from "./api/timeEater/requests";
+import { getAnimeSite, isVideoHost } from "./parsers/main";
+import { RawTitleName } from "./parsers/types";
 import { TitleContent } from "./types";
-import { getCurrentDatetime, getFromStorage, setToStorage } from "./utils";
+import { getCurrentDatetime } from "./utils";
 
 
 
 var siteTitleName: RawTitleName | null = null;
 var animeSiteProvider = getAnimeSite();
 if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()) {
-    siteTitleName = animeSiteProvider.getTitleName();
-    const updateInLocal = () => {
-        if (siteTitleName) {
-            const episodeOrder = animeSiteProvider.getCurrentEpisode();
-            consultWithMal(siteTitleName, episodeOrder, animeSiteProvider.getStartDate()).then(data => {
-                localStorage.setItem('titleName', data.title.node.title)
-                localStorage.setItem('titleImage', data.title.node.main_picture.medium)
-                localStorage.setItem('titleId', data.title.node.id.toString())
-                localStorage.setItem('site', window.location.href)
-                localStorage.setItem('episodeOrder', data.episodeOrder.toString())
-            })
-        }
-    }
-    
-    animeSiteProvider.onPlayerLoad(() => {
-        updateInLocal();
-        updateStorage(animeSiteProvider);
-        animeSiteProvider.onEpisodeChanged(() => {
-            setTimeout(() => {
-                updateInLocal()
-                updateStorage(animeSiteProvider)
-            }, 100)
-
-        })
-    })
-
     chrome.runtime.onMessage.addListener((msg, _, response) => {
         if ((msg.from === 'popup') && (msg.subject === 'content') && animeSiteProvider && animeSiteProvider.isOnWatchingPage()) {
-            const titleContent = {
-                titleName: localStorage.getItem('titleName'),
-                titleImage: localStorage.getItem('titleImage'),
-                episodeOrder: Number(localStorage.getItem('episodeOrder'))
-            } as TitleContent;
-            response(titleContent);
+            const episodeOrder = animeSiteProvider.getCurrentEpisode();
+            console.log('i see request from popup')
+            consultWithMal(animeSiteProvider.getTitleName(), episodeOrder, animeSiteProvider.getStartDate()).then(data => {
+                const titleContent = {
+                    titleName: data.title.node.title,
+                    titleImage: data.title.node.main_picture.medium,
+                    episodeOrder: episodeOrder
+                } as TitleContent;
+                console.log('i sending response')
+                console.log(titleContent)
+                response(titleContent);
+            })
+
         }
     });
 
 
-    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-        if (request.siteRequest){
-            console.log('returning data')
-            chrome.runtime.sendMessage({ titleName: animeSiteProvider.getTitleName(), siteAnswer: true, to: request.to})
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        if (request.siteRequest) {
+            const episodeOrder = animeSiteProvider.getCurrentEpisode();
+            consultWithMal(animeSiteProvider.getTitleName(), episodeOrder, animeSiteProvider.getStartDate()).then(data => {
+                let watchingData = {
+                    source: 'mal',
+                    sourceType: 'season',
+                    sourceId: Number(data.title.node.id),
+                    episodeOrder: Number(data.episodeOrder),
+                    translateType: animeSiteProvider.getTranslateType(),
+                    site: animeSiteProvider.getCurrentPageURL(),
+                    title: data.title
+                }
+                chrome.runtime.sendMessage({ siteAnswer: true, to: request.to, from: request.from, watchingData: watchingData })
+            })
         }
-        
+
     });
 }
 
@@ -71,42 +61,13 @@ if (isVideoHost(window.location.host)) {
     var isPlaying = false;
     var timeFrom = 0;
     var timePlayed = 0;
-    
-    const triggerSave = () => {
-    chrome.runtime.sendMessage({ mytab: true }, tabId => {
-        chrome.runtime.sendMessage({ to: tabId.tab, siteRequest: true}, function(response) {
-            console.log('make request...')
+
+    const triggerSaveRecord = () => {
+        chrome.runtime.sendMessage({ mytab: true }, tabId => {
+            chrome.runtime.sendMessage({ to: tabId.tab, siteRequest: true, from: 'video' }, function (response) {
+                console.log('Triggering')
+            });
         });
-    });
-    }
-
-
-
-    function presaveRecord() {
-        getFromStorageSiteData().then(
-            data => {
-                let record = {
-                    source: 'mal',
-                    sourceType: 'season',
-                    sourceId: Number(data.titleId),
-                    watchedFrom: timeFrom,
-                    watchedTime: timePlayed,
-                    watchDatetime: getCurrentDatetime().toString(),
-                    episodeOrder: Number(data.episodeOrder),
-                    translateType: data.translateType,
-                    site: data.site
-                }
-
-                console.log('timePlayed: ', timePlayed)
-                console.log('timeFrom: ', timeFrom)
-                console.log('sending...')
-                console.log(record)
-                createRecord(record)
-                timePlayed = 0;
-                timeFrom = 0;
-            }
-        )
-
     }
 
     function videoStartedPlaying() {
@@ -128,12 +89,12 @@ if (isVideoHost(window.location.host)) {
 
     function videoStoppedPlaying(event: Event) {
         isPlaying = false;
-        if (timePlayed > 5) presaveRecord()
+        if (timePlayed > 5) triggerSaveRecord()
     }
 
     function onFullScreenChanged(event: Event) {
         if (timePlayed > 5) {
-            presaveRecord();
+            triggerSaveRecord();
         }
     }
     video.addEventListener("play", videoStartedPlaying);
@@ -142,13 +103,24 @@ if (isVideoHost(window.location.host)) {
     video.addEventListener("pause", videoStoppedPlaying);
     document.addEventListener('fullscreenchange', onFullScreenChanged);
 
-    
-    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-        if (request.siteAnswer){
+
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        if (request.siteAnswer && request.from === 'video') {
             console.log('Saving video with data...')
-            console.log(request)
-            console.log(timePlayed)
-            
+            let record = {
+                source: request.watchingData.source,
+                sourceType: request.watchingData.sourceType,
+                site: request.watchingData.site,
+                sourceId: request.watchingData.sourceId,
+                episodeOrder: request.watchingData.episodeOrder,
+                translateType: request.watchingData.translateType,
+                watchedFrom: timeFrom,
+                watchedTime: timePlayed,
+                watchDatetime: getCurrentDatetime().toString()
+            }
+            createRecord(record)
+            timePlayed = 0;
+            timeFrom = 0;
         }
     });
 

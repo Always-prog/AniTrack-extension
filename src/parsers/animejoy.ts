@@ -46,19 +46,6 @@ function getCurrentPageURL(): string {
     return window.location.href
 }
 
-function onEpisodeChanged(func: () => void){
-    var playlist = document.getElementsByClassName('playlists-videos')[0];
-    var playlistLists = document.getElementsByClassName('playlists-lists')[0];
-    playlistLists.addEventListener('click', () => {
-        setTimeout(func, 1)
-    })
-    playlist.addEventListener('click', (e) => {
-        if ((e?.target as HTMLElement)?.tagName === 'LI') { // trigger only when episode is selected.
-            setTimeout(func, 1)
-        }
-    })
-}
-
 function isOnWatchingPage(){
     return window.location.pathname.includes('.html') // every episode on that site hosted as html
 }
@@ -88,6 +75,5 @@ export default {
     getTranslateType: getTranslateType,
     getStartDate: getStartDate,
     getCurrentPageURL: getCurrentPageURL,
-    onEpisodeChanged: onEpisodeChanged,
     isOnWatchingPage: isOnWatchingPage
 } as SiteProvider

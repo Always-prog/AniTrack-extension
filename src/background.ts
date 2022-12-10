@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     console.log(request)
     if (request.to && request.siteRequest)
-    chrome.tabs.sendMessage(request.to, {siteRequest: true, to: request.to}, function(response) {
+    chrome.tabs.sendMessage(request.to, {siteRequest: true, to: request.to, from: request.from}, function(response) {
         sendResponse(response);
     });
     if (request.siteAnswer)

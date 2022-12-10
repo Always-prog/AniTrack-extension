@@ -47,17 +47,6 @@ function getCurrentPageURL(){
     return window.location.href;
 }
 
-function onEpisodeChanged(func: () => void){
-    document.getElementById('video-carousel')?.addEventListener('click', (e: MouseEvent) => {
-        if ((e?.target as HTMLElement)?.tagName === 'DIV'){
-            func();
-        }
-    })
-    document.getElementById('video-dubbing')?.addEventListener('click', (_) => {
-        func();
-    })
-
-}
 
 function isOnWatchingPage(){
     return document.getElementsByClassName('anime-title').length >= 1;
@@ -70,6 +59,5 @@ export default {
     getTranslateType: getTranslateType,
     getStartDate: getStartDate,
     getCurrentPageURL: getCurrentPageURL,
-    onEpisodeChanged: onEpisodeChanged,
     isOnWatchingPage: isOnWatchingPage
 } as SiteProvider

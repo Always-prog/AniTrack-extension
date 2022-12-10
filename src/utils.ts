@@ -1,23 +1,12 @@
-import { SiteProvider } from "./parsers/types";
 
-
-
-export function setToStorage(data: object){
-    chrome.storage.local.set(data, function(){
-    });
-}
-
-export async function getFromStorage(keys: Array<string>){
-    return await chrome.storage.local.get([keys])
-}
 
 export function getCurrentDatetime(): string {
-    var currentdate = new Date(); 
-    var datetime =  (currentdate.getMonth()+1) + "/"
-    +  currentdate.getDate() + "/" 
-    + currentdate.getFullYear() + " "  
-    + currentdate.getHours() + ":"  
-    + currentdate.getMinutes() + ":" 
-    + currentdate.getSeconds();
+    var currentdate = new Date();
+    var datetime = (currentdate.getMonth() + 1) + "/"
+        + currentdate.getDate() + "/"
+        + currentdate.getFullYear() + " "
+        + currentdate.getHours() + ":"
+        + currentdate.getMinutes() + ":"
+        + currentdate.getSeconds();
     return datetime;
 }
