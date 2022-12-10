@@ -11,37 +11,32 @@ import { getCurrentDatetime, getFromStorage, setToStorage } from "./utils";
 
 var siteTitleName: RawTitleName | null = null;
 var animeSiteProvider = getAnimeSite();
-if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()){  
-    siteTitleName = animeSiteProvider.getTitleName(); // TOOD: program tries to parse main page also. Fix that.
-    if (!siteTitleName){
-        window.prompt('timeEater: site is supported, but we can\'t load the title name. Please input the name of title you watching', '');
-        
-    } else {
-        
-        const updateInLocal = () => {
-            if (siteTitleName){
-                const episodeOrder = animeSiteProvider.getCurrentEpisode();
-                consultWithMal(siteTitleName, episodeOrder, animeSiteProvider.getStartDate()).then(data => {
-                    localStorage.setItem('titleName', data.title.node.title)
-                    localStorage.setItem('titleImage', data.title.node.main_picture.medium)
-                    localStorage.setItem('titleId', data.title.node.id.toString())
-                    localStorage.setItem('site', window.location.href)
-                    localStorage.setItem('episodeOrder', data.episodeOrder.toString())
-                })
-            }
+if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()) {
+    siteTitleName = animeSiteProvider.getTitleName();
+    const updateInLocal = () => {
+        if (siteTitleName) {
+            const episodeOrder = animeSiteProvider.getCurrentEpisode();
+            consultWithMal(siteTitleName, episodeOrder, animeSiteProvider.getStartDate()).then(data => {
+                localStorage.setItem('titleName', data.title.node.title)
+                localStorage.setItem('titleImage', data.title.node.main_picture.medium)
+                localStorage.setItem('titleId', data.title.node.id.toString())
+                localStorage.setItem('site', window.location.href)
+                localStorage.setItem('episodeOrder', data.episodeOrder.toString())
+            })
         }
+    }
+    
+    animeSiteProvider.onPlayerLoad(() => {
         updateInLocal();
         updateStorage(animeSiteProvider);
-        
-
-        animeSiteProvider.onPlayerLoad(() => {
-            animeSiteProvider.onEpisodeChanged(() => {
+        animeSiteProvider.onEpisodeChanged(() => {
+            setTimeout(() => {
                 updateInLocal()
                 updateStorage(animeSiteProvider)
-            })
+            }, 100)
+
         })
-        
-    }
+    })
 
     chrome.runtime.onMessage.addListener((msg, _, response) => {
         if ((msg.from === 'popup') && (msg.subject === 'content') && animeSiteProvider && animeSiteProvider.isOnWatchingPage()) {
@@ -49,27 +44,45 @@ if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()){
                 titleName: localStorage.getItem('titleName'),
                 titleImage: localStorage.getItem('titleImage'),
                 episodeOrder: Number(localStorage.getItem('episodeOrder'))
-                } as TitleContent;
-                response(titleContent);
+            } as TitleContent;
+            response(titleContent);
         }
     });
-    
 
+
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        if (request.siteRequest){
+            console.log('returning data')
+            chrome.runtime.sendMessage({ titleName: animeSiteProvider.getTitleName(), siteAnswer: true, to: request.to})
+        }
+        
+    });
 }
-    
 
 
 
 
 
 
-if (isVideoHost(window.location.host)){
+
+if (isVideoHost(window.location.host)) {
     let video = document.getElementsByTagName('video')[0] as HTMLVideoElement;
     let counter: ReturnType<typeof setTimeout>;
     var isPlaying = false;
     var timeFrom = 0;
     var timePlayed = 0;
-    function presaveRecord(){
+    
+    const triggerSave = () => {
+    chrome.runtime.sendMessage({ mytab: true }, tabId => {
+        chrome.runtime.sendMessage({ to: tabId.tab, siteRequest: true}, function(response) {
+            console.log('make request...')
+        });
+    });
+    }
+
+
+
+    function presaveRecord() {
         getFromStorageSiteData().then(
             data => {
                 let record = {
@@ -78,12 +91,12 @@ if (isVideoHost(window.location.host)){
                     sourceId: Number(data.titleId),
                     watchedFrom: timeFrom,
                     watchedTime: timePlayed,
-                    watchDatetime: getCurrentDatetime(),
+                    watchDatetime: getCurrentDatetime().toString(),
                     episodeOrder: Number(data.episodeOrder),
                     translateType: data.translateType,
                     site: data.site
                 }
-                
+
                 console.log('timePlayed: ', timePlayed)
                 console.log('timeFrom: ', timeFrom)
                 console.log('sending...')
@@ -97,21 +110,19 @@ if (isVideoHost(window.location.host)){
     }
 
     function videoStartedPlaying() {
-        if (timePlayed > 5) presaveRecord() // playing event also trigger changing in timeline
-
         isPlaying = true;
         clearInterval(counter);
 
         timeFrom = Math.round(video.currentTime);
         timePlayed = 0;
-        counter = setInterval(function(){
-            if (isPlaying){
-                timePlayed = timePlayed + 1;
+        counter = setInterval(function () {
+            if (isPlaying) {
+                timePlayed += 1;
             }
         }, 1000);
     }
 
-    function videoUnpause(){
+    function videoUnpause() {
         isPlaying = true;
     }
 
@@ -120,8 +131,8 @@ if (isVideoHost(window.location.host)){
         if (timePlayed > 5) presaveRecord()
     }
 
-    function onFullScreenChanged(event: Event){
-        if (timePlayed > 5){
+    function onFullScreenChanged(event: Event) {
+        if (timePlayed > 5) {
             presaveRecord();
         }
     }
@@ -130,5 +141,15 @@ if (isVideoHost(window.location.host)){
     video.addEventListener("ended", videoStoppedPlaying);
     video.addEventListener("pause", videoStoppedPlaying);
     document.addEventListener('fullscreenchange', onFullScreenChanged);
+
     
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        if (request.siteAnswer){
+            console.log('Saving video with data...')
+            console.log(request)
+            console.log(timePlayed)
+            
+        }
+    });
+
 }

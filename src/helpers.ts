@@ -14,7 +14,9 @@ export function updateStorage(siteProvider: SiteProvider){
                 titleName: data.title.node.title,
                 titleId: data.title.node.id.toString(),
                 titleImage: data.title.node.main_picture.medium,
-                episodeOrder: data.episodeOrder
+                episodeOrder: data.episodeOrder,
+                translateType: siteProvider.getTranslateType(),
+                site: siteProvider.getCurrentPageURL()
             })
         })
     }
@@ -24,10 +26,6 @@ export function updateStorage(siteProvider: SiteProvider){
         })
     else update()
 
-    setToStorage({
-        translateType: siteProvider.getTranslateType(),
-        site: siteProvider.getCurrentPageURL()
-    })
 
 }
 

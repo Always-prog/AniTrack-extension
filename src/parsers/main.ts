@@ -1,15 +1,19 @@
 import { default as animejoySite } from './animejoy';
+import { default as animegoSite } from './animego';
 
 
 const animeSites = {
-    [animejoySite.site]: animejoySite 
+    [animejoySite.site]: animejoySite,
+    [animegoSite.site]: animegoSite,
 }
 
 export const videoHosts = [
     'video.sibnet.ru',
     '*.online',
     'secvideo1.online',
-    '*.uboost.one'
+    '*.uboost.one',
+    'kodik.info',
+    '*.*.kodik-storage.com'
 ]
 
 export function isVideoHost(host: string): boolean{
