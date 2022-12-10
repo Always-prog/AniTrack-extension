@@ -33,7 +33,8 @@ function onPlayerLoad(func: () => void){
 
 function getTranslateType(){
     // @ts-ignore: Object is possibly 'null'.
-    return document.getElementById('video-dubbing').querySelector('span.video-player__active').textContent.replace(/  /g,'').replace(/(\r\n|\n|\r)/gm, '')
+    let translate = document.getElementById('video-dubbing').querySelector('span.video-player__active').textContent.replace(/  /g,'').replace(/(\r\n|\n|\r)/gm, '')
+    return translate === 'Субтитры' ? 'Subtitles' : translate;
 }
 
 function getStartDate(){
