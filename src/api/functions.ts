@@ -28,12 +28,7 @@ export async function consultWithMal(titleName: RawTitleName, episodeOrder?: Epi
     return searchByTitleName(prepareTitleName(titleName)).then(nodes => {
         let title: MALNode = nodes[0];
         if (start_date) sortBySiteData(nodes, start_date); title = nodes[0];
-        if (title.node.num_episodes === 0) return { // TODO: Fix that by finding episodes eaired.
-            title: title,
-            episodeOrder: 1
-        }
-
-        if (episodeOrder && title.node.num_episodes < episodeOrder){
+        if (episodeOrder && title.node.num_episodes && title.node.num_episodes < episodeOrder){
                 /* 
                 Num eps is lower than current watching 
                 It means that user watching some next part, but on site it record as one.
