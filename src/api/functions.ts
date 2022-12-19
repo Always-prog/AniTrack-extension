@@ -11,6 +11,7 @@ export function sortBySiteData(nodes: MALNodes, start_date?: Date){
             const pieces = date.split('-')
             return new Date(Number(pieces[0]), Number(pieces[1]), Number(pieces[2]))
         }
+        if (!node1.node.start_date) return 1;  // if there is annons of anime, it can have no start date for now
         let date1 = dateFromNodeString(node1.node.start_date).toDateString()
         let date2 = start_date?.toDateString()
         if (date1 !== date2) return 1;

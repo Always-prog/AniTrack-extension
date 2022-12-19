@@ -2,6 +2,7 @@ import { TitleContent } from "./types"
 import { dropToken, login, me, register } from './api/timeEater/requests';
 import { deleteAuthToken, saveAuthToken } from "./api/utils";
 import { MALNode } from "./api/timeEater/types";
+import { generateTextAboutSupport } from "./utils";
 
 function setTitleContent(content: TitleContent) {
     document.getElementById('titile-img')?.setAttribute('src', content.titleImage);
@@ -105,4 +106,18 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('watching-info')?.style.setProperty('display', 'none');
         document.getElementById('login-form')?.style.removeProperty('display');
     })
+    document.getElementById('get-list-of-supported')?.addEventListener('click', function(_){
+        document.getElementById('watching-info')?.style.setProperty('display', 'none');
+        document.getElementById('support-list')?.style.removeProperty('display');
+    });
+    document.getElementById('back-to-watching-from-support')?.addEventListener('click', function(_){
+        document.getElementById('support-list')?.style.setProperty('display', 'none');
+        document.getElementById('watching-info')?.style.removeProperty('display');
+    })
+
+    let supportListContent = document.getElementById('support-list-content');
+    if (supportListContent){
+        console.log(generateTextAboutSupport())
+        supportListContent.innerHTML = generateTextAboutSupport()
+    }
 })

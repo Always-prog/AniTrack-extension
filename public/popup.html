@@ -8,20 +8,34 @@
     <span id="watching-info" style="display: none;">
       <div style="display: list-item;">
         <p>
-          <h2 id="title-name"></h2>
+          <h2 style="text-align:center;" id="title-name"></h2>
         </p>
-        <p>
-          episode: <span id="episode-order"></span>
-        </p>
-        <p style="align-items:center;">
+        <p style="text-align:center;">
           <img id="titile-img"/>
         </p>
+        <p style="text-align:center;">
+          episode: <span id="episode-order"></span>
+        </p>
       </div> 
+      <div style="display: flex;justify-content: space-between;">
       <div>
         <p><a href="http://localhost:8088" target="_blank">Go To Analytics</a></p>
         <button id="logout-button">Logout</button>
       </div>
+      <div>
+        <p>
+          <span id="site-support-text">Site is supported✅</span><br/>
+          <span id="player-support-text">Player is not supported❌</span><br/>
+          <a id="get-list-of-supported" href="#">See support list</a>
+        </p>
+      </div>
+    </div>
+    </span>
+    <span id="support-list" style="display: none;">
+      <div id="support-list-content">
 
+      </div>
+      <p><a href="#" id="back-to-watching-from-support">Back to watching banner</a></p>
     </span>
     <span id="login-form" style="display: none;">
       <h3>You must be logged in</h3>

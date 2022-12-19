@@ -1,3 +1,4 @@
+import { animeSites, videoHosts } from "./parsers/main";
 
 
 export function getCurrentDatetime(): string {
@@ -9,4 +10,18 @@ export function getCurrentDatetime(): string {
         + currentdate.getMinutes() + ":"
         + currentdate.getSeconds();
     return datetime;
+}
+
+
+export function generateTextAboutSupport(): string {
+    return `
+<b>sites</b>
+<ul>
+${Object.keys(animeSites).map((site) => '<li>'+site+'</li>').join('')}
+</ul>
+
+<b>players</b>
+<ul>
+${Object.keys(videoHosts).map(player => '<li>'+player+'</li>').join('')}
+</ul>`
 }

@@ -2,26 +2,27 @@ import { default as animejoySite } from './animejoy';
 import { default as animegoSite } from './animego';
 
 
-const animeSites = {
+export const animeSites = {
     [animejoySite.site]: animejoySite,
     [animegoSite.site]: animegoSite,
 }
 
-export const videoHosts = [
-    'video.sibnet.ru',
-    '*.online',
-    'secvideo1.online',
-    '*.uboost.one',
-    'kodik.info',
-    '*.*.kodik-storage.com'
-]
+export const videoHosts = {
+    'Sibnet': 'video.sibnet.ru',
+    'AllVideo': 'secvideo1.online',
+    'uStore': '*.uboost.one',
+    'Kodik': 'kodik.info',
+    'KodikStorage': '*.*.kodik-storage.com',
+    'AniBook': 'aniboom.one',
+}
+export const videoHostsUrls = Object.values(videoHosts);
 
 export function isVideoHost(host: string): boolean{
-    if (videoHosts.includes(host)) return true;
+    if (videoHostsUrls.includes(host)) return true;
     let pies = host.split('.')
 
-    let hosts = videoHosts.filter(domain => domain.split('.')[0] === '*' || domain.split('.')[0] === pies[0])
-    for (var i = 0; i < pies.length -1; i +=1 ){
+    let hosts = videoHostsUrls.filter(domain => domain.split('.')[0] === '*' || domain.split('.')[0] === pies[0])
+    for (var i = 0; i < 4; i +=1 ){
         hosts = hosts.filter(domain => domain.split('.')[i] === '*' || domain.split('.')[i] === pies[i])
     }
     if (hosts.length !== 0) return true;
@@ -34,7 +35,7 @@ export function getAnimeSite(){
 }
 
 export function isAnimeSite(){
-    return getAnimeSite() && !videoHosts.includes(window.location.host);
+    return getAnimeSite() && !videoHostsUrls.includes(window.location.host);
 }
 
 export function getVideoPlayer(){
