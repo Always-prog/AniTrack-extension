@@ -4,12 +4,15 @@ import { deleteAuthToken, saveAuthToken } from "./api/utils";
 import { MALNode } from "./api/timeEater/types";
 import { generateTextAboutSupport } from "./utils";
 
+
+const byId = (id: string) => document.getElementById(id)
+
 function setTitleContent(content: TitleContent) {
-    document.getElementById('titile-img')?.setAttribute('src', content.titleImage);
-    var titleSpan = document.getElementById('title-name');
+    byId('titile-img')?.setAttribute('src', content.titleImage);
+    var titleSpan = byId('title-name');
     if (titleSpan) titleSpan.innerHTML = content.titleName;
 
-    var episodeSpan = document.getElementById('episode-order');
+    var episodeSpan = byId('episode-order');
     if (episodeSpan) episodeSpan.innerHTML = content.episodeOrder?.toString();
 }
 
@@ -24,6 +27,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 { from: 'popup', to: tabs[0].id, siteRequest: true },
                 () => { }
             )
+            chrome.tabs.sendMessage(
+                tabs[0].id,
+                { from: 'popup', to: tabs[0].id, playerRequest: true },
+                () => { }
+            ),
+            chrome.tabs.sendMessage(
+                tabs[0].id,
+                { from: 'popup', to: tabs[0].id, supportSiteRequest: true },
+                () => { }
+            )
         }
     })
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -33,33 +46,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 titleImage: title.node.main_picture.medium, titleName: title.node.title,
                 episodeOrder: request.watchingData.episodeOrder
             })
+
+        } else if (request.playerRequest && request.from === 'popup') {
+            let playerSupportInfo = byId('player-support-text');
+            if (playerSupportInfo) {
+                playerSupportInfo.innerHTML = request.playerData?.isPlayerSupported ? 'Player is supported✅' : 'Player is not found or supported❌';
+            }
+
+        } else if (request.supportSiteRequest && request.from === 'popup'){
+            let siteSupportInfo = byId('site-support-text');
+            let isWatchingPage = byId('is-watching-page-text');
+            if (siteSupportInfo?.innerHTML) siteSupportInfo.innerHTML = request.isSiteSupported ? 'Site is supported ✅' : 'Site is not supported❌';
+            if (isWatchingPage?.innerHTML) isWatchingPage.innerHTML = request.isWatchingPage ? 'Page contains anime✅' : 'Page not contains anime❌'
         }
     });
 
     me().then(response => {
         if (response.status === 401) {
-            document.getElementById('login-form')?.style.removeProperty('display')
+            byId('login-form')?.style.removeProperty('display')
         } else if (response.status === 200) {
-            document.getElementById('watching-info')?.style.removeProperty('display')
+            byId('watching-info')?.style.removeProperty('display')
         } // TODO: Show register form 
     })
 
-    document.getElementById('login-button')?.addEventListener('click', function (_) {
-        let username = (document.getElementById('login-username') as HTMLInputElement)?.value as string;
-        let password = (document.getElementById('login-password') as HTMLInputElement)?.value as string;
+    byId('login-button')?.addEventListener('click', function (_) {
+        let username = (byId('login-username') as HTMLInputElement)?.value as string;
+        let password = (byId('login-password') as HTMLInputElement)?.value as string;
 
         login(username, password).then(
             response => {
                 if (response.status !== 200) {
-                    let loginMessage = document.getElementById('login-message');
+                    let loginMessage = byId('login-message');
                     response.json().then(data => {
                         if (!loginMessage) return;
                         loginMessage.innerHTML = data.detail;
                     })
                     loginMessage?.style.removeProperty('display'); // TODO: Show message from backend 
                 } else {
-                    document.getElementById('login-form')?.style.setProperty('display', 'none')
-                    document.getElementById('watching-info')?.style.removeProperty('display')
+                    byId('login-form')?.style.setProperty('display', 'none')
+                    byId('watching-info')?.style.removeProperty('display')
 
                 }
                 return response.json()
@@ -71,20 +96,20 @@ document.addEventListener('DOMContentLoaded', () => {
         })
     })
 
-    document.getElementById('register-button')?.addEventListener('click', function (_) {
-        let username = (document.getElementById('register-username') as HTMLInputElement).value;
-        let email = (document.getElementById('register-email') as HTMLInputElement).value;
-        let password = (document.getElementById('register-password') as HTMLInputElement).value;
+    byId('register-button')?.addEventListener('click', function (_) {
+        let username = (byId('register-username') as HTMLInputElement).value;
+        let email = (byId('register-email') as HTMLInputElement).value;
+        let password = (byId('register-password') as HTMLInputElement).value;
 
         register(username, email, password).then(
             response => {
                 if (response.status === 200) {
-                    document.getElementById('login-form')?.style.removeProperty('display')
-                    document.getElementById('register-form')?.style.setProperty('display', 'none')
-                    document.getElementById('register-message')?.style.setProperty('display', 'none')
+                    byId('login-form')?.style.removeProperty('display')
+                    byId('register-form')?.style.setProperty('display', 'none')
+                    byId('register-message')?.style.setProperty('display', 'none')
                 } else if (response.status === 409) {
                     response.json().then(data => {
-                        let registerMessage = document.getElementById('register-message')
+                        let registerMessage = byId('register-message')
                         if (!registerMessage) return;
                         registerMessage?.style.removeProperty('display')
                         registerMessage.innerHTML = data.detail;
@@ -95,29 +120,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     })
 
-    document.getElementById('not-have-account-yet')?.addEventListener('click', function (_) {
-        document.getElementById('login-form')?.style.setProperty('display', 'none');
-        document.getElementById('register-form')?.style.removeProperty('display');
+    byId('not-have-account-yet')?.addEventListener('click', function (_) {
+        byId('login-form')?.style.setProperty('display', 'none');
+        byId('register-form')?.style.removeProperty('display');
     })
 
-    document.getElementById('logout-button')?.addEventListener('click', function (_) {
+    byId('logout-button')?.addEventListener('click', function (_) {
         dropToken();
         deleteAuthToken();
-        document.getElementById('watching-info')?.style.setProperty('display', 'none');
-        document.getElementById('login-form')?.style.removeProperty('display');
+        byId('watching-info')?.style.setProperty('display', 'none');
+        byId('login-form')?.style.removeProperty('display');
     })
-    document.getElementById('get-list-of-supported')?.addEventListener('click', function(_){
-        document.getElementById('watching-info')?.style.setProperty('display', 'none');
-        document.getElementById('support-list')?.style.removeProperty('display');
+    byId('get-list-of-supported')?.addEventListener('click', function (_) {
+        byId('watching-info')?.style.setProperty('display', 'none');
+        byId('support-list')?.style.removeProperty('display');
     });
-    document.getElementById('back-to-watching-from-support')?.addEventListener('click', function(_){
-        document.getElementById('support-list')?.style.setProperty('display', 'none');
-        document.getElementById('watching-info')?.style.removeProperty('display');
+    byId('back-to-watching-from-support')?.addEventListener('click', function (_) {
+        byId('support-list')?.style.setProperty('display', 'none');
+        byId('watching-info')?.style.removeProperty('display');
     })
 
-    let supportListContent = document.getElementById('support-list-content');
-    if (supportListContent){
-        console.log(generateTextAboutSupport())
+    let supportListContent = byId('support-list-content');
+    if (supportListContent) {
         supportListContent.innerHTML = generateTextAboutSupport()
     }
 })

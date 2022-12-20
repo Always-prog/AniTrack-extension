@@ -8,33 +8,34 @@ import { getCurrentDatetime } from "./utils";
 
 
 var animeSiteProvider = getAnimeSite();
-if (animeSiteProvider && animeSiteProvider.isOnWatchingPage()) {
+if (animeSiteProvider) {
+    if (animeSiteProvider.isOnWatchingPage()){
+        chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+            if (request.siteRequest) {
+                const episodeOrder = animeSiteProvider.getCurrentEpisode();
+                consultWithMal(animeSiteProvider.getTitleName(), episodeOrder, animeSiteProvider.getStartDate()).then(data => {
+                    let watchingData = {
+                        source: 'mal',
+                        sourceType: 'season',
+                        sourceId: Number(data.title.node.id),
+                        episodeOrder: Number(data.episodeOrder),
+                        translateType: animeSiteProvider.getTranslateType(),
+                        site: animeSiteProvider.getCurrentPageURL(),
+                        title: data.title
+                    }
+                    chrome.runtime.sendMessage({ siteAnswer: true, to: request.to, from: request.from, watchingData: watchingData })
+                })
+            }
+        });
+    }
+
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        if (request.siteRequest) {
-            console.log('got site requerst!')
-            console.log(request)
-            const episodeOrder = animeSiteProvider.getCurrentEpisode();
-            consultWithMal(animeSiteProvider.getTitleName(), episodeOrder, animeSiteProvider.getStartDate()).then(data => {
-                let watchingData = {
-                    source: 'mal',
-                    sourceType: 'season',
-                    sourceId: Number(data.title.node.id),
-                    episodeOrder: Number(data.episodeOrder),
-                    translateType: animeSiteProvider.getTranslateType(),
-                    site: animeSiteProvider.getCurrentPageURL(),
-                    title: data.title
-                }
-                console.log('sending message!')
-                console.log({ siteAnswer: true, to: request.to, from: request.from, watchingData: watchingData })
-                chrome.runtime.sendMessage({ siteAnswer: true, to: request.to, from: request.from, watchingData: watchingData })
-            })
+        if (request.supportSiteRequest) {
+            chrome.runtime.sendMessage({ supportSiteRequest: true, to: request.to, from: request.from, isSiteSupported: true, isWatchingPage: animeSiteProvider.isOnWatchingPage() })
         }
-
     });
+
 }
-
-
-
 
 
 
@@ -126,8 +127,14 @@ if (isVideoHost(window.location.host)) {
                 createRecord(record)
                 timePlayed = 0;
             } else console.log('timePlayed is too small for saving. Skip.')
-
         }
     });
-
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        if (request.playerRequest) {
+            let playerData = {
+                isPlayerSupported: true
+            }
+            chrome.runtime.sendMessage({ playerRequest: true, to: request.to, from: request.from, playerData: playerData })
+        }
+    });
 }

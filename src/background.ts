@@ -5,7 +5,8 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    console.log(request)
+
+    // This is for saving records
     if (request.to && request.siteRequest)
     chrome.tabs.sendMessage(request.to, {siteRequest: true, to: request.to, from: request.from}, function(response) {
         sendResponse(response);
