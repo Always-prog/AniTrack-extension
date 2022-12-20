@@ -41,7 +41,7 @@ function getStartDate(){
     // @ts-ignore: Object is possibly 'null'.
     let startDateString = Array.from(document.getElementsByClassName('released-episodes-item')).at(-1).querySelectorAll('[content]')[1].attributes['content'].value;
     let startDatePieces = startDateString.split('-');
-    return new Date(startDatePieces[3], startDatePieces[2], startDatePieces[1])
+    return new Date(startDatePieces[0], startDatePieces[1], startDatePieces[2])
 }
 
 function getCurrentPageURL(){
