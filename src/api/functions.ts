@@ -7,15 +7,17 @@ import { prepareTitleName, selectMostLikeTitleName } from "./utils";
 
 export function sortBySiteData(nodes: MALNodes, start_date?: Date){
     function sortByDate(node1: MALNode, node2: MALNode){
-        const dateFromNodeString = (date: string) => {
+        const dateFromNodeString = (date: string): Date => {
             const pieces = date.split('-')
             return new Date(Number(pieces[0]), Number(pieces[1]), Number(pieces[2]))
         }
         if (!node1.node.start_date) return 1;  // if there is annons of anime, it can have no start date for now
-        let date1 = dateFromNodeString(node1.node.start_date).toDateString()
-        let date2 = start_date?.toDateString()
-        if (date1 !== date2) return 1;
-        if (date1 === date2) return -1;
+        let date1 = dateFromNodeString(node1.node.start_date)
+        let date2 = dateFromNodeString(node2.node.start_date)
+        // @ts-ignore The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+        if (Math.abs(start_date - date1) < Math.abs(start_date - date2)) return -1;
+        // @ts-ignore The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+        if (Math.abs(start_date - date1) > Math.abs(start_date - date2)) return 1;
         return 0;
     }
     if (start_date) return nodes.sort(sortByDate)
