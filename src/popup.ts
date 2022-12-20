@@ -17,28 +17,6 @@ function setTitleContent(content: TitleContent) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    chrome.tabs.query({
-        active: true,
-        currentWindow: true
-    }, tabs => {
-        if (tabs[0].id) {
-            chrome.tabs.sendMessage(
-                tabs[0].id,
-                { from: 'popup', to: tabs[0].id, siteRequest: true },
-                () => { }
-            )
-            chrome.tabs.sendMessage(
-                tabs[0].id,
-                { from: 'popup', to: tabs[0].id, playerRequest: true },
-                () => { }
-            ),
-            chrome.tabs.sendMessage(
-                tabs[0].id,
-                { from: 'popup', to: tabs[0].id, supportSiteRequest: true },
-                () => { }
-            )
-        }
-    })
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.siteAnswer && request.from === 'popup') {
             const title = request.watchingData.title as MALNode;
@@ -61,11 +39,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    const requestContentData = () => {
+        chrome.tabs.query({
+            active: true,
+            currentWindow: true
+        }, tabs => {
+            if (tabs[0].id) {
+                chrome.tabs.sendMessage(
+                    tabs[0].id,
+                    { from: 'popup', to: tabs[0].id, siteRequest: true },
+                    () => { }
+                )
+                chrome.tabs.sendMessage(
+                    tabs[0].id,
+                    { from: 'popup', to: tabs[0].id, playerRequest: true },
+                    () => { }
+                ),
+                chrome.tabs.sendMessage(
+                    tabs[0].id,
+                    { from: 'popup', to: tabs[0].id, supportSiteRequest: true },
+                    () => { }
+                )
+            }
+        })
+    }
+
     me().then(response => {
         if (response.status === 401) {
             byId('login-form')?.style.removeProperty('display')
         } else if (response.status === 200) {
             byId('watching-info')?.style.removeProperty('display')
+            requestContentData();
         } // TODO: Show register form 
     })
 
@@ -85,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     byId('login-form')?.style.setProperty('display', 'none')
                     byId('watching-info')?.style.removeProperty('display')
+                    
 
                 }
                 return response.json()
@@ -92,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ).then(data => {
             if (data.access_token) {
                 saveAuthToken(data.access_token)
+                requestContentData();
             }
         })
     })

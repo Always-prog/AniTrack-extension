@@ -27,38 +27,46 @@ export async function createRecord(record: Record){
 }
 
 export async function searchByTitleName(titleName: string, limit: number = 10): Promise<MALNodes>{
-    return await fetch(endpoints.mal, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            endpoint: '/v2/anime',
-            params: {
-                q: prepareTitleName(titleName),
-                limit: limit,
-                fields: nodeFields.join(',')
-            }
-        })
-    }
-    ).then(response => response.json()
-    ).then(json => json['data'])
+    return await getAuthToken().then(async authToken => {
+        return await fetch(endpoints.mal, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+                endpoint: '/v2/anime',
+                params: {
+                    q: prepareTitleName(titleName),
+                    limit: limit,
+                    fields: nodeFields.join(',')
+                }
+            })
+        }
+        ).then(response => response.json()
+        ).then(json => json['data'])
+    })
+
 }
 
 export async function getAnimeDetails(id: sourceId): Promise<MALTitle>{
-    return await fetch(endpoints.mal, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            endpoint: `/v2/anime/${id}`,
-            params: {
-                fields: nodeFields.join(',')
-            }
-        })
-    }
-    ).then(response => response.json())
+    return await getAuthToken().then(async authToken => {
+        return await fetch(endpoints.mal, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+                endpoint: `/v2/anime/${id}`,
+                params: {
+                    fields: nodeFields.join(',')
+                }
+            })
+        }
+        ).then(response => response.json());
+    })
+
 }
 
 
