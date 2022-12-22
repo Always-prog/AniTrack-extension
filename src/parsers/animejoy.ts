@@ -53,18 +53,15 @@ function isOnWatchingPage(){
 function getStartDate(){
     let desc = document.getElementsByClassName('blkdesc')[0];
     let dates = Array.from(desc.getElementsByTagName('p')).filter(p => p.innerHTML.includes('Дата выпуска'));
-    let start_date = {
-        1: 1999,
-        2: 10,
-        3: 10,
-    }
     if (dates[0]?.textContent){
         // @ts-ignore: Object is possibly 'null'.
-        start_date = dates[0].textContent.match(/(\d{4}([.\-/ ])\d{2}\2\d{2}|\d{2}([.\-/ ])\d{2}\3\d{4})/)[0].match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+        let start_date = dates[0].textContent.match(/(\d{4}([.\-/ ])\d{2}\2\d{2}|\d{2}([.\-/ ])\d{2}\3\d{4})/)[0].match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+        // @ts-ignore: Object is possibly 'null'.
+        return new Date(start_date[3], start_date[2], start_date[1])
             
     }
     
-    return new Date(start_date[3], start_date[2], start_date[1])
+    
 }
 
 export default {

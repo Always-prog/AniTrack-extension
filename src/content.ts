@@ -13,7 +13,7 @@ if (animeSiteProvider) {
         chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             if (request.siteRequest) {
                 const episodeOrder = animeSiteProvider.getCurrentEpisode();
-                consultWithMal(animeSiteProvider.getTitleName(), episodeOrder, animeSiteProvider.getStartDate()).then(data => {
+                consultWithMal(animeSiteProvider.getTitleName(), episodeOrder, animeSiteProvider?.getStartDate()).then(data => {
                     let watchingData = {
                         source: 'mal',
                         sourceType: 'season',

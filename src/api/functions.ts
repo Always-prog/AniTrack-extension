@@ -27,7 +27,7 @@ export function sortBySiteData(nodes: MALNodes, start_date?: Date){
 
 
 
-export async function consultWithMal(titleName: RawTitleName, episodeOrder?: EpisodeOrder, start_date?: Date): Promise<{title: MALNode, episodeOrder: EpisodeOrder}>{
+export async function consultWithMal(titleName: RawTitleName, episodeOrder?: EpisodeOrder, start_date?: Date | null): Promise<{title: MALNode, episodeOrder: EpisodeOrder}>{
     return searchByTitleName(prepareTitleName(titleName)).then(nodes => {
         let title: MALNode = nodes[0];
         if (start_date) sortBySiteData(nodes, start_date); title = nodes[0];

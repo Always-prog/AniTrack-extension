@@ -11,5 +11,5 @@ export interface SiteProvider {
     onPlayerLoad: (func: () => void) => null;
     getCurrentPageURL: () => string;
     isOnWatchingPage: () => boolean
-    getStartDate: () => Date;
+    getStartDate: () => Date | null;
 }
