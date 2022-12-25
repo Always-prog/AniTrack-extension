@@ -13,7 +13,7 @@ export const videoHosts = {
     'uStore': '*.uboost.one',
     'Kodik': 'kodik.info',
     'KodikStorage': '*.*.kodik-storage.com',
-    'AniBook': 'aniboom.one',
+    'AniBoom': 'aniboom.one',
 }
 export const videoHostsUrls = Object.values(videoHosts);
 
