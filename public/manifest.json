@@ -21,8 +21,7 @@
            "*://*.csst.online/*", "*://*.secvideo1.online/*",
             "*://*.uboost.one/*", "*://*.animego.org/*", "*://*.kodik.info/*", "*://aniboom.one/*"],
         "js": ["./content.js"],
-        "all_frames": true,
-        "css": ["notification.css"]
+        "all_frames": true
       }
     ],
     "action": {
