@@ -1,6 +1,6 @@
 {
-    "name": "TimeEater Extension",
-    "description": "Just TimeEater",
+    "name": "Animetrack",
+    "description": "tracking anime watching and making analytics.",
     "version": "1.0",
     "permissions":[
         "tabs",
