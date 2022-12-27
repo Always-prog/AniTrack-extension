@@ -11,23 +11,23 @@
           <h2 style="text-align:center;" id="title-name"></h2>
         </p>
         <p style="text-align:center;">
-          <img id="titile-img"/>
+          <img id="titile-img" src="./loading.svg"/>
         </p>
         <p style="text-align:center;">
-          episode: <span id="episode-order"></span>
+          Серия: <span id="episode-order"></span>
         </p>
       </div> 
       <div style="display: flex;justify-content: space-between;">
       <div>
-        <p><a href="http://localhost:8088" target="_blank">Go To Analytics</a></p>
-        <button id="logout-button">Logout</button>
+        <p><a href="https://www.anitrack.online/superset/dashboard/2/" target="_blank">Перейти к аналитике</a></p>
+        <button id="logout-button">Выйти</button>
       </div>
-      <div>
+      <div style="text-align: right;">
         <p>
-          <span id="site-support-text">Site is not supported❌</span><br/>
-          <span id="is-watching-page-text">Page not contains anime❌</span><br/>
-          <span id="player-support-text">Player is not found or supported❌</span><br/>
-          <a id="get-list-of-supported" href="#">See support list</a>
+          <span id="site-support-text">Данный сайт не поддерживается❌</span><br/>
+          <span id="is-watching-page-text">На странице не найдено плеера❌</span><br/>
+          <span id="player-support-text">Плеер не поддерживается❌</span><br/>
+          <a id="get-list-of-supported" href="#">Cписок поддерживаемых сайтов и плееров</a>
         </p>
       </div>
     </div>
@@ -36,49 +36,49 @@
       <div id="support-list-content">
 
       </div>
-      <p><a href="#" id="back-to-watching-from-support">Back to watching banner</a></p>
+      <p><a href="#" id="back-to-watching-from-support">Назад</a></p>
     </span>
     <span id="login-form" style="display: none;">
-      <h3>You must be logged in</h3>
+      <h3>Требуется войти в аккаунт</h3>
       <p>
-        <label for="login-username">Username: </label>
+        <label for="login-username">Логин: </label>
         <input type="text" id="login-username" required>
       </p>
       <p>
-        <label for="login-password">Password: </label>
+        <label for="login-password">Пароль: </label>
         <input type="password" id="login-password" required>
       </p>
       <p>
-        <button id="login-button">Login</button>
+        <button id="login-button">Войти</button>
       </p>
       <p style="font-size: small-xx;">
         <a role="button" id="not-have-account-yet" href="#">
-          Not have account yet?
+          Еще нет аккаунта?
         </a>
       </p>
       <p id="login-message" style="display: none;">
-        Incorrent login.
+        Не верный логин.
       </p>
     </span>
     <span id="register-form" style="display: none;">
-      <h3>Registration</h3>
+      <h3>Регистрация</h3>
       <p>
-        <label for="register-username">Username: </label>
+        <label for="register-username">Логин: </label>
         <input type="text" id="register-username" required>
       </p>
       <p>
-        <label for="register-email">Email: </label>
+        <label for="register-email">Почта: </label>
         <input type="text" id="register-email" required>
       </p>
       <p>
-        <label for="register-password">Password: </label>
+        <label for="register-password">Пароль: </label>
         <input type="password" id="register-password" required>
       </p>
       <p>
-        <button id="register-button">Register</button>
+        <button id="register-button">Зарегистрироваться</button>
       </p>
       <p id="register-message" style="display: none;">
-        Incorrect request.
+        Что-то пошло не так. Напишите в поддержку.
       </p>
     </span>
   </div>

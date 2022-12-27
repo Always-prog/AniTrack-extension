@@ -1,4 +1,4 @@
-export const baseUrl = 'https://localhost:8000'
+export const baseUrl = 'https://api.anitrack.online'
 
 export const endpoints = {
     record: {

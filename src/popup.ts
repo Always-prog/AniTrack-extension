@@ -28,14 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (request.playerRequest && request.from === 'popup') {
             let playerSupportInfo = byId('player-support-text');
             if (playerSupportInfo) {
-                playerSupportInfo.innerHTML = request.playerData?.isPlayerSupported ? 'Player is supported✅' : 'Player is not found or supported❌';
+                playerSupportInfo.innerHTML = request.playerData?.isPlayerSupported ? 'Плеер поддерживается✅' : 'Плеер не поддеживается❌';
             }
 
         } else if (request.supportSiteRequest && request.from === 'popup'){
             let siteSupportInfo = byId('site-support-text');
             let isWatchingPage = byId('is-watching-page-text');
-            if (siteSupportInfo?.innerHTML) siteSupportInfo.innerHTML = request.isSiteSupported ? 'Site is supported ✅' : 'Site is not supported❌';
-            if (isWatchingPage?.innerHTML) isWatchingPage.innerHTML = request.isWatchingPage ? 'Page contains anime✅' : 'Page not contains anime❌'
+            if (siteSupportInfo?.innerHTML) siteSupportInfo.innerHTML = request.isSiteSupported ? 'Сайт поддерживается✅' : 'Сайт не поддерживается❌';
+            if (isWatchingPage?.innerHTML) isWatchingPage.innerHTML = request.isWatchingPage ? 'Плеер найден✅' : 'На странице не найдено плеера❌'
         }
     });
 

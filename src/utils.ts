@@ -15,13 +15,14 @@ export function getCurrentDatetime(): string {
 
 export function generateTextAboutSupport(): string {
     return `
-<b>sites</b>
+<b>сайты</b>
 <ul>
 ${Object.keys(animeSites).map((site) => '<li>'+site+'</li>').join('')}
 </ul>
 
-<b>players</b>
+<b>плееры</b>
 <ul>
 ${Object.keys(videoHosts).map(player => '<li>'+player+'</li>').join('')}
-</ul>`
+</ul><br/>
+Нет нужного вам сайта? Запросите поддержку в <a href="https://discord.gg/w3uGQXYJ2g" target="_blank">дискорд сервере приложения</a>`
 }
