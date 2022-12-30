@@ -53,9 +53,6 @@ if (isVideoHost(window.location.host)) {
         function videoStartedPlaying() {
             isPlaying = true;
             clearInterval(counter);
-
-            timeFrom = Math.round(video.currentTime);
-            timePlayed = 0;
             counter = setInterval(function () {
                 if (isPlaying) {
                     timePlayed += 1;
@@ -64,17 +61,16 @@ if (isVideoHost(window.location.host)) {
         }
 
         function videoUnpause() {
-            timeFrom = Math.round(video.currentTime);
             isPlaying = true;
+            triggerSaveRecord();
         }
 
         function videoStoppedPlaying(event: Event) {
             isPlaying = false;
-            triggerSaveRecord()
+            triggerSaveRecord();
         }
 
         function onFullScreenChanged(event: Event) {
-            timeFrom = Math.round(video.currentTime);
             triggerSaveRecord();
 
         }
@@ -126,6 +122,7 @@ if (isVideoHost(window.location.host)) {
                 }
                 createRecord(record)
                 timePlayed = 0;
+                timeFrom = Math.round(video.currentTime);
             } else console.log('timePlayed is too small for saving. Skip.')
         }
     });
