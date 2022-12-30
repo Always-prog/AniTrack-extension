@@ -1,7 +1,7 @@
 {
   "name": "Animetrack",
   "description": "tracking anime watching and making analytics.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "permissions":[
       "tabs",
       "activeTab",
