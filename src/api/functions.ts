@@ -6,12 +6,14 @@ import { prepareTitleName, selectMostLikeTitleName } from "./utils";
 
 
 export function sortBySiteData(nodes: MALNodes, start_date?: Date){
+    console.log(nodes)
     function sortByDate(node1: MALNode, node2: MALNode){
         const dateFromNodeString = (date: string): Date => {
             const pieces = date.split('-')
             return new Date(Number(pieces[0]), Number(pieces[1]), Number(pieces[2]))
         }
         if (!node1.node.start_date) return 1;  // if there is annons of anime, it can have no start date for now
+        if (!node2.node.start_date) return -1;
         let date1 = dateFromNodeString(node1.node.start_date)
         let date2 = dateFromNodeString(node2.node.start_date)
         // @ts-ignore The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
