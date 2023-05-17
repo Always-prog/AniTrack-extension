@@ -7,9 +7,15 @@ This project is designed for conducting detailed analysis of anime viewing. It a
 
 The project is written in Python + FastAPI. SQLAlchemy is used for database operations. Additionally, an object-oriented approach is employed to implement functionality for interacting with program components through commands (Command class). This ensures flexibility in expanding the server-side and supporting legacy functionality.
 
+Extension is written in TypeScript.
+
+Backend: https://github.com/Always-prog/AniTrack-API
+
+
 Проект включает в себя браузерное **расширение для пользователей (данный репозиторий)**, серверную часть и поднятый инстанс Apache Superset. Данный репозиторий представляет собой сервер, который хранит информацию о пользователях, записывает данные о просмотре аниме и содержит собственную базу данных аниме, которая пополняется по мере просмотра аниме пользователями.
 
 Этот проект предназначен для проведения детального анализа просмотра аниме. Он стремится предоставить точную информацию об аналитике просмотра не только самим пользователям, но и дает возможность контент-мейкерам изучать аналитику своих подписчиков.
+
 Расширение написано на TypeScript.
 
 Серверная часть: https://github.com/Always-prog/AniTrack-API
